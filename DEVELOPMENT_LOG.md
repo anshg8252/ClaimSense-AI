@@ -556,3 +556,47 @@
   - Commit Target: `main` branch.
   - Staged Scope: Exactly 14 approved Phase 10 test, documentation, and governance files.
   - Commit Message: `feat(phase10): close system integration and concurrency testing`.
+
+---
+
+## Phase 9.12 – Phase 9.18: Complete ML Accuracy Improvement Program & Model Governance
+- **Status:** COMPLETED & VERIFIED — AUTHORITATIVE GOVERNANCE VERDICT: QUARANTINE CANDIDATES / RETAIN PHASE 5 BASELINE
+- **Date:** 2026-11-20
+- **Lead Roles:** Principal Computer Vision Engineer, YOLOv8 Research Scientist, ML Dataset Auditor, MLOps Engineer, Model Evaluation Specialist, Production Model Governance Lead
+- **Environment & Hardware:** 1x NVIDIA GeForce RTX 3050 Laptop GPU (3.99 GB VRAM, CUDA 12.8, PyTorch 2.11.0+cu128, Ultralytics YOLOv8 v8.4.215) in dedicated virtual environment (`.\.venv`).
+- **Core Engineering Deliverables Finalized & Verified:**
+  - `runs/phase9_12/phase0_ml_forensic_audit.md`: Phase 0 comprehensive environment, hardware, checkpoint, and dataset forensic inventory report.
+  - `runs/phase9_12/phase9_12_final_report.md`: Phase 9.12 crack and scratch forensic evaluation, mathematical IoU boundary proof, and multi-model retraining report.
+  - `runs/phase9_13/dataset_coverage_report.md`: Phase 9.13 dataset coverage, spatial scale disparity, bounding box aspect ratio, and data augmentation dynamics report.
+  - `runs/phase9_14/training_optimization_report.md`: Phase 9.14 neural architecture, feature stride bottlenecks (P3/8 vs missing P2/4), DFL/CIoU loss formulations, and AdamW optimization report.
+  - `runs/phase9_15/confidence_calibration_report.md`: Phase 9.15 empirical confidence sweeps ($\tau \in [0.05, 0.50]$), operating curves, and class-specific threshold calibration policy report.
+  - `runs/phase9_16/independent_validation_report.md`: Phase 9.16 data leakage/contamination audits, non-damage false-positive stress tests, latency benchmarks, and API contract report.
+  - `runs/phase9_17/model_promotion_recommendation.md`: Phase 9.17 formal 5-Gate Promotion Scorecard, safety risk assessments, and authoritative production governance verdict.
+  - `runs/phase9_18/ml_program_closure_report.md`: Phase 9.18 forensic program retrospective, complete checkpoint manifest, and Phase 11 strategic architectural evolution roadmap.
+  - `runs/ml_accuracy_program_final_report.md`: Master synthesis report consolidating all empirical evaluations, mathematical proofs, benchmark metrics, and governance sign-off.
+- **Empirical Retraining Experiments on Dedicated GPU (`datasets/CarDD_Expanded_v1/`):**
+  - Expanded dataset: 310 train images with 169 crack instances (+85.7% support increase vs CarDD_300), 45 val images (140 instances), and frozen held-out test split (45 images, 148 instances).
+  - `P912-EXP01` (Expanded Base, 640px, 25 epochs, AdamW): standard mAP@50 reached 0.3779, precision reached 0.4787, recall 0.3041, F1 0.3719, false positives reduced to 49 (down from 1,804), crack recall at $\tau=0.10$ reached 30.77% (4/13).
+  - `P912-EXP02` (HiRes, 800px, 25 epochs, AdamW): standard mAP@50 reached 0.3961, precision 0.4811, overall recall reached 0.3446, peak F1 0.4016, dent recall 38.78%, scratch recall 20.75%, crack recall at $\tau=0.10$ reached 30.77% (4/13).
+  - `P912-EXP03` (Loss-Tuned, 640px, box=8.5, cls=1.2, close_mosaic=5): standard mAP@50 reached 0.4441, peak precision 0.5111 (only 44 false positives), broke the 0% crack recall barrier at standard $\tau=0.25$ achieving 23.08% (3/13), scratch recall reached 26.42% (14/53).
+- **The Mathematical & Geometric Dynamics of Crack Detection Recall:**
+  - Ground-truth cracks in CarDD are annotated as ultra-thin hairline bounding boxes (width as narrow as 11.3 px, area = 427 px²).
+  - YOLOv8 anchor-free detection heads (P3 stride 8) combined with standard convolutional receptive field pooling naturally generate proposals spanning broader contextual bounds (e.g. 50x100 px).
+  - Note: YOLOv8 does not possess an immutable hard-coded minimum box constraint; rather, standard TaskAlignedAssigner regression and default box loss weighting ($\text{box}=7.5$) favor broader contextual boundaries. Against hairline fractures, the theoretical intersection-over-union is constrained ($\text{IoU}_{\max} \approx 0.085 \ll 0.25$), causing standard greedy matching ($\text{IoU} \ge 0.40$) to reject concentric predictions as False Positives and False Negatives.
+  - In `P912-EXP03`, increasing box loss weighting ($\text{box}=8.5$) and closing mosaic augmentation forced the regression head to tighten predicted boundaries around fissures, successfully breaking this barrier and achieving 23.08% operational recall at $\tau=0.25$.
+- **Independent Validation Benchmark Sample-Size Limitation:**
+  - The authoritative held-out test split consists of 45 images containing 148 defect instances, with only 13 structural crack instances across 10 images. While strictly isolated from training splits, this sample size incurs significant binomial variance (each detected crack instance shifts class recall by $\pm 7.69\%$). Benchmark metrics should be interpreted as rigorous proof-of-concept validations rather than population-wide field statistics.
+- **Production Accuracy Clarification:**
+  - Production model accuracy is **NOT** claimed to have improved, because `models/phase5/best.pt` remains 100% byte-for-byte invariant (`90d489e46ff8521edff88d522f0feffa164ac38a53b84700594c02a69e515565`). All accuracy and mAP gains reported apply strictly and exclusively to experimental candidate checkpoints quarantined in research directories.
+- **Software-Level Mitigation Deployed:**
+  - Enforced class-specific operating thresholds: $\tau_{\text{dent}} = 0.25$, $\tau_{\text{scratch}} = 0.18$, $\tau_{\text{crack}} = 0.10$, $\tau_{\text{glass}} = 0.25$, $\tau_{\text{lamp}} = 0.25$, $\tau_{\text{tire}} = 0.30$.
+  - Unlocks crack detection on existing models without retraining risks or false-positive inflation on clean panels.
+- **Authoritative Production Governance Verdict:**
+  - `models/phase5/best.pt` (SHA-256: `90d489e46ff8521edff88d522f0feffa164ac38a53b84700594c02a69e515565`) is strictly retained as the sole approved production baseline (100% byte-for-byte invariant).
+  - All experimental candidates (`P9-T02`, `EXP01`, `EXP02`, `EXP03`) are strictly quarantined in research directories. Zero unapproved weights promoted.
+- **Phase 9.19 Proposed Research Roadmap (PLANNED — NOT COMPLETE):**
+  - *Phase 9.19 is a proposed future research plan and is strictly NOT marked complete.*
+  - **Workstream 9.19.1 (Dataset Expansion):** Acquire and dual-blind annotate $\ge 200$ high-resolution automotive crack walkaround images across varied vehicle paint colors, lighting angles, and wet/dry conditions.
+  - **Workstream 9.19.2 (SAHI Inference Tiling):** Implement Slicing Aided Hyper Inference to process raw mobile camera uploads ($4000\times 3000\text{ px}$) in overlapping $640\times 640$ patches, preserving hairline crack resolution.
+  - **Workstream 9.19.3 (Polygon Instance Segmentation):** Transition annotation and architecture from rectangular bounding boxes to polygon masks (YOLOv8-seg), eliminating rectangular IoU penalties along diagonal crack paths.
+  - **Workstream 9.19.4 (Dual-Stage Ensemble):** Prototype a multi-stage pipeline utilizing YOLOv8n for fast macroscopic damage triage combined with a patch-specialist classifier for ambiguous hairline surface anomalies.

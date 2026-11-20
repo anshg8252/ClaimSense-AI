@@ -1,0 +1,2486 @@
+{
+  "Phase 5 Baseline (Production)": {
+    "model_name": "Phase 5 Baseline (Production)",
+    "weight_path": "models/phase5/best.pt",
+    "sha256": "90d489e46ff8521edff88d522f0feffa164ac38a53b84700594c02a69e515565",
+    "map50": 0.0041,
+    "map50_95": 0.0011,
+    "class_map50": {
+      "dent": 0.0006877269703463574,
+      "scratch": 8.179266148698463e-05,
+      "crack": 0.0,
+      "glass shatter": 0.0044154206872019305,
+      "lamp broken": 0.0011479615677638492,
+      "tire flat": 0.0001896551724137931
+    },
+    "avg_latency_ms": 43.18,
+    "sweep_results": {
+      "tau_0.05": {
+        "overall": {
+          "tp": 47,
+          "fp": 3888,
+          "fn": 101,
+          "gt": 148,
+          "precision": 0.0119,
+          "recall": 0.3176,
+          "f1": 0.023
+        },
+        "per_class": {
+          "dent": {
+            "tp": 27,
+            "fp": 1901,
+            "fn": 22,
+            "gt": 49,
+            "precision": 0.014,
+            "recall": 0.551,
+            "f1": 0.0273
+          },
+          "scratch": {
+            "tp": 4,
+            "fp": 85,
+            "fn": 49,
+            "gt": 53,
+            "precision": 0.0449,
+            "recall": 0.0755,
+            "f1": 0.0563
+          },
+          "crack": {
+            "tp": 0,
+            "fp": 1016,
+            "fn": 13,
+            "gt": 13,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "glass shatter": {
+            "tp": 7,
+            "fp": 174,
+            "fn": 5,
+            "gt": 12,
+            "precision": 0.0387,
+            "recall": 0.5833,
+            "f1": 0.0725
+          },
+          "lamp broken": {
+            "tp": 9,
+            "fp": 710,
+            "fn": 6,
+            "gt": 15,
+            "precision": 0.0125,
+            "recall": 0.6,
+            "f1": 0.0245
+          },
+          "tire flat": {
+            "tp": 0,
+            "fp": 2,
+            "fn": 6,
+            "gt": 6,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        }
+      },
+      "tau_0.10": {
+        "overall": {
+          "tp": 42,
+          "fp": 2910,
+          "fn": 106,
+          "gt": 148,
+          "precision": 0.0142,
+          "recall": 0.2838,
+          "f1": 0.0271
+        },
+        "per_class": {
+          "dent": {
+            "tp": 26,
+            "fp": 1604,
+            "fn": 23,
+            "gt": 49,
+            "precision": 0.016,
+            "recall": 0.5306,
+            "f1": 0.031
+          },
+          "scratch": {
+            "tp": 0,
+            "fp": 33,
+            "fn": 53,
+            "gt": 53,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "crack": {
+            "tp": 0,
+            "fp": 613,
+            "fn": 13,
+            "gt": 13,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "glass shatter": {
+            "tp": 7,
+            "fp": 162,
+            "fn": 5,
+            "gt": 12,
+            "precision": 0.0414,
+            "recall": 0.5833,
+            "f1": 0.0773
+          },
+          "lamp broken": {
+            "tp": 9,
+            "fp": 498,
+            "fn": 6,
+            "gt": 15,
+            "precision": 0.0178,
+            "recall": 0.6,
+            "f1": 0.0345
+          },
+          "tire flat": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 6,
+            "gt": 6,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        }
+      },
+      "tau_0.15": {
+        "overall": {
+          "tp": 39,
+          "fp": 2368,
+          "fn": 109,
+          "gt": 148,
+          "precision": 0.0162,
+          "recall": 0.2635,
+          "f1": 0.0305
+        },
+        "per_class": {
+          "dent": {
+            "tp": 24,
+            "fp": 1415,
+            "fn": 25,
+            "gt": 49,
+            "precision": 0.0167,
+            "recall": 0.4898,
+            "f1": 0.0323
+          },
+          "scratch": {
+            "tp": 0,
+            "fp": 14,
+            "fn": 53,
+            "gt": 53,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "crack": {
+            "tp": 0,
+            "fp": 413,
+            "fn": 13,
+            "gt": 13,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "glass shatter": {
+            "tp": 7,
+            "fp": 151,
+            "fn": 5,
+            "gt": 12,
+            "precision": 0.0443,
+            "recall": 0.5833,
+            "f1": 0.0824
+          },
+          "lamp broken": {
+            "tp": 8,
+            "fp": 375,
+            "fn": 7,
+            "gt": 15,
+            "precision": 0.0209,
+            "recall": 0.5333,
+            "f1": 0.0402
+          },
+          "tire flat": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 6,
+            "gt": 6,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        }
+      },
+      "tau_0.20": {
+        "overall": {
+          "tp": 37,
+          "fp": 2053,
+          "fn": 111,
+          "gt": 148,
+          "precision": 0.0177,
+          "recall": 0.25,
+          "f1": 0.0331
+        },
+        "per_class": {
+          "dent": {
+            "tp": 23,
+            "fp": 1300,
+            "fn": 26,
+            "gt": 49,
+            "precision": 0.0174,
+            "recall": 0.4694,
+            "f1": 0.0335
+          },
+          "scratch": {
+            "tp": 0,
+            "fp": 6,
+            "fn": 53,
+            "gt": 53,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "crack": {
+            "tp": 0,
+            "fp": 314,
+            "fn": 13,
+            "gt": 13,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "glass shatter": {
+            "tp": 7,
+            "fp": 142,
+            "fn": 5,
+            "gt": 12,
+            "precision": 0.047,
+            "recall": 0.5833,
+            "f1": 0.087
+          },
+          "lamp broken": {
+            "tp": 7,
+            "fp": 291,
+            "fn": 8,
+            "gt": 15,
+            "precision": 0.0235,
+            "recall": 0.4667,
+            "f1": 0.0447
+          },
+          "tire flat": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 6,
+            "gt": 6,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        }
+      },
+      "tau_0.25": {
+        "overall": {
+          "tp": 35,
+          "fp": 1804,
+          "fn": 113,
+          "gt": 148,
+          "precision": 0.019,
+          "recall": 0.2365,
+          "f1": 0.0352
+        },
+        "per_class": {
+          "dent": {
+            "tp": 23,
+            "fp": 1198,
+            "fn": 26,
+            "gt": 49,
+            "precision": 0.0188,
+            "recall": 0.4694,
+            "f1": 0.0362
+          },
+          "scratch": {
+            "tp": 0,
+            "fp": 3,
+            "fn": 53,
+            "gt": 53,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "crack": {
+            "tp": 0,
+            "fp": 243,
+            "fn": 13,
+            "gt": 13,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "glass shatter": {
+            "tp": 7,
+            "fp": 131,
+            "fn": 5,
+            "gt": 12,
+            "precision": 0.0507,
+            "recall": 0.5833,
+            "f1": 0.0933
+          },
+          "lamp broken": {
+            "tp": 5,
+            "fp": 229,
+            "fn": 10,
+            "gt": 15,
+            "precision": 0.0214,
+            "recall": 0.3333,
+            "f1": 0.0402
+          },
+          "tire flat": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 6,
+            "gt": 6,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        }
+      },
+      "tau_0.30": {
+        "overall": {
+          "tp": 34,
+          "fp": 1645,
+          "fn": 114,
+          "gt": 148,
+          "precision": 0.0203,
+          "recall": 0.2297,
+          "f1": 0.0372
+        },
+        "per_class": {
+          "dent": {
+            "tp": 22,
+            "fp": 1136,
+            "fn": 27,
+            "gt": 49,
+            "precision": 0.019,
+            "recall": 0.449,
+            "f1": 0.0365
+          },
+          "scratch": {
+            "tp": 0,
+            "fp": 2,
+            "fn": 53,
+            "gt": 53,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "crack": {
+            "tp": 0,
+            "fp": 195,
+            "fn": 13,
+            "gt": 13,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "glass shatter": {
+            "tp": 7,
+            "fp": 126,
+            "fn": 5,
+            "gt": 12,
+            "precision": 0.0526,
+            "recall": 0.5833,
+            "f1": 0.0966
+          },
+          "lamp broken": {
+            "tp": 5,
+            "fp": 186,
+            "fn": 10,
+            "gt": 15,
+            "precision": 0.0262,
+            "recall": 0.3333,
+            "f1": 0.0485
+          },
+          "tire flat": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 6,
+            "gt": 6,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        }
+      },
+      "tau_0.35": {
+        "overall": {
+          "tp": 34,
+          "fp": 1500,
+          "fn": 114,
+          "gt": 148,
+          "precision": 0.0222,
+          "recall": 0.2297,
+          "f1": 0.0404
+        },
+        "per_class": {
+          "dent": {
+            "tp": 22,
+            "fp": 1067,
+            "fn": 27,
+            "gt": 49,
+            "precision": 0.0202,
+            "recall": 0.449,
+            "f1": 0.0387
+          },
+          "scratch": {
+            "tp": 0,
+            "fp": 2,
+            "fn": 53,
+            "gt": 53,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "crack": {
+            "tp": 0,
+            "fp": 155,
+            "fn": 13,
+            "gt": 13,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "glass shatter": {
+            "tp": 7,
+            "fp": 122,
+            "fn": 5,
+            "gt": 12,
+            "precision": 0.0543,
+            "recall": 0.5833,
+            "f1": 0.0993
+          },
+          "lamp broken": {
+            "tp": 5,
+            "fp": 154,
+            "fn": 10,
+            "gt": 15,
+            "precision": 0.0314,
+            "recall": 0.3333,
+            "f1": 0.0575
+          },
+          "tire flat": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 6,
+            "gt": 6,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        }
+      },
+      "tau_0.40": {
+        "overall": {
+          "tp": 32,
+          "fp": 1356,
+          "fn": 116,
+          "gt": 148,
+          "precision": 0.0231,
+          "recall": 0.2162,
+          "f1": 0.0417
+        },
+        "per_class": {
+          "dent": {
+            "tp": 22,
+            "fp": 991,
+            "fn": 27,
+            "gt": 49,
+            "precision": 0.0217,
+            "recall": 0.449,
+            "f1": 0.0414
+          },
+          "scratch": {
+            "tp": 0,
+            "fp": 2,
+            "fn": 53,
+            "gt": 53,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "crack": {
+            "tp": 0,
+            "fp": 122,
+            "fn": 13,
+            "gt": 13,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "glass shatter": {
+            "tp": 7,
+            "fp": 106,
+            "fn": 5,
+            "gt": 12,
+            "precision": 0.0619,
+            "recall": 0.5833,
+            "f1": 0.112
+          },
+          "lamp broken": {
+            "tp": 3,
+            "fp": 135,
+            "fn": 12,
+            "gt": 15,
+            "precision": 0.0217,
+            "recall": 0.2,
+            "f1": 0.0392
+          },
+          "tire flat": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 6,
+            "gt": 6,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        }
+      },
+      "tau_0.50": {
+        "overall": {
+          "tp": 29,
+          "fp": 1121,
+          "fn": 119,
+          "gt": 148,
+          "precision": 0.0252,
+          "recall": 0.1959,
+          "f1": 0.0447
+        },
+        "per_class": {
+          "dent": {
+            "tp": 22,
+            "fp": 861,
+            "fn": 27,
+            "gt": 49,
+            "precision": 0.0249,
+            "recall": 0.449,
+            "f1": 0.0472
+          },
+          "scratch": {
+            "tp": 0,
+            "fp": 2,
+            "fn": 53,
+            "gt": 53,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "crack": {
+            "tp": 0,
+            "fp": 75,
+            "fn": 13,
+            "gt": 13,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "glass shatter": {
+            "tp": 6,
+            "fp": 93,
+            "fn": 6,
+            "gt": 12,
+            "precision": 0.0606,
+            "recall": 0.5,
+            "f1": 0.1081
+          },
+          "lamp broken": {
+            "tp": 1,
+            "fp": 90,
+            "fn": 14,
+            "gt": 15,
+            "precision": 0.011,
+            "recall": 0.0667,
+            "f1": 0.0189
+          },
+          "tire flat": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 6,
+            "gt": 6,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        }
+      }
+    }
+  },
+  "P912-EXP01 Expanded Base": {
+    "model_name": "P912-EXP01 Expanded Base",
+    "weight_path": "runs/phase9_12/experiments/P912_EXP01_expanded_base/weights/best.pt",
+    "sha256": "084a310ee5af4c86c173a656e27e867d2bab78f0deccf3d3be804a964a93e5f9",
+    "map50": 0.3779,
+    "map50_95": 0.2421,
+    "class_map50": {
+      "dent": 0.11750081881769696,
+      "scratch": 0.04485994446772439,
+      "crack": 0.03179762178006365,
+      "glass shatter": 0.5438273270846801,
+      "lamp broken": 0.34702488673100873,
+      "tire flat": 0.3676116946778712
+    },
+    "avg_latency_ms": 44.36,
+    "sweep_results": {
+      "tau_0.05": {
+        "overall": {
+          "tp": 83,
+          "fp": 247,
+          "fn": 65,
+          "gt": 148,
+          "precision": 0.2515,
+          "recall": 0.5608,
+          "f1": 0.3473
+        },
+        "per_class": {
+          "dent": {
+            "tp": 28,
+            "fp": 86,
+            "fn": 21,
+            "gt": 49,
+            "precision": 0.2456,
+            "recall": 0.5714,
+            "f1": 0.3436
+          },
+          "scratch": {
+            "tp": 23,
+            "fp": 48,
+            "fn": 30,
+            "gt": 53,
+            "precision": 0.3239,
+            "recall": 0.434,
+            "f1": 0.371
+          },
+          "crack": {
+            "tp": 8,
+            "fp": 71,
+            "fn": 5,
+            "gt": 13,
+            "precision": 0.1013,
+            "recall": 0.6154,
+            "f1": 0.1739
+          },
+          "glass shatter": {
+            "tp": 10,
+            "fp": 13,
+            "fn": 2,
+            "gt": 12,
+            "precision": 0.4348,
+            "recall": 0.8333,
+            "f1": 0.5714
+          },
+          "lamp broken": {
+            "tp": 9,
+            "fp": 18,
+            "fn": 6,
+            "gt": 15,
+            "precision": 0.3333,
+            "recall": 0.6,
+            "f1": 0.4286
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 11,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.3125,
+            "recall": 0.8333,
+            "f1": 0.4545
+          }
+        }
+      },
+      "tau_0.10": {
+        "overall": {
+          "tp": 64,
+          "fp": 145,
+          "fn": 84,
+          "gt": 148,
+          "precision": 0.3062,
+          "recall": 0.4324,
+          "f1": 0.3585
+        },
+        "per_class": {
+          "dent": {
+            "tp": 23,
+            "fp": 48,
+            "fn": 26,
+            "gt": 49,
+            "precision": 0.3239,
+            "recall": 0.4694,
+            "f1": 0.3833
+          },
+          "scratch": {
+            "tp": 15,
+            "fp": 29,
+            "fn": 38,
+            "gt": 53,
+            "precision": 0.3409,
+            "recall": 0.283,
+            "f1": 0.3093
+          },
+          "crack": {
+            "tp": 4,
+            "fp": 41,
+            "fn": 9,
+            "gt": 13,
+            "precision": 0.0889,
+            "recall": 0.3077,
+            "f1": 0.1379
+          },
+          "glass shatter": {
+            "tp": 9,
+            "fp": 8,
+            "fn": 3,
+            "gt": 12,
+            "precision": 0.5294,
+            "recall": 0.75,
+            "f1": 0.6207
+          },
+          "lamp broken": {
+            "tp": 8,
+            "fp": 10,
+            "fn": 7,
+            "gt": 15,
+            "precision": 0.4444,
+            "recall": 0.5333,
+            "f1": 0.4848
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 9,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.3571,
+            "recall": 0.8333,
+            "f1": 0.5
+          }
+        }
+      },
+      "tau_0.15": {
+        "overall": {
+          "tp": 59,
+          "fp": 100,
+          "fn": 89,
+          "gt": 148,
+          "precision": 0.3711,
+          "recall": 0.3986,
+          "f1": 0.3844
+        },
+        "per_class": {
+          "dent": {
+            "tp": 20,
+            "fp": 33,
+            "fn": 29,
+            "gt": 49,
+            "precision": 0.3774,
+            "recall": 0.4082,
+            "f1": 0.3922
+          },
+          "scratch": {
+            "tp": 14,
+            "fp": 25,
+            "fn": 39,
+            "gt": 53,
+            "precision": 0.359,
+            "recall": 0.2642,
+            "f1": 0.3043
+          },
+          "crack": {
+            "tp": 4,
+            "fp": 23,
+            "fn": 9,
+            "gt": 13,
+            "precision": 0.1481,
+            "recall": 0.3077,
+            "f1": 0.2
+          },
+          "glass shatter": {
+            "tp": 9,
+            "fp": 5,
+            "fn": 3,
+            "gt": 12,
+            "precision": 0.6429,
+            "recall": 0.75,
+            "f1": 0.6923
+          },
+          "lamp broken": {
+            "tp": 7,
+            "fp": 7,
+            "fn": 8,
+            "gt": 15,
+            "precision": 0.5,
+            "recall": 0.4667,
+            "f1": 0.4828
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 7,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.4167,
+            "recall": 0.8333,
+            "f1": 0.5556
+          }
+        }
+      },
+      "tau_0.20": {
+        "overall": {
+          "tp": 55,
+          "fp": 66,
+          "fn": 93,
+          "gt": 148,
+          "precision": 0.4545,
+          "recall": 0.3716,
+          "f1": 0.4089
+        },
+        "per_class": {
+          "dent": {
+            "tp": 18,
+            "fp": 23,
+            "fn": 31,
+            "gt": 49,
+            "precision": 0.439,
+            "recall": 0.3673,
+            "f1": 0.4
+          },
+          "scratch": {
+            "tp": 12,
+            "fp": 15,
+            "fn": 41,
+            "gt": 53,
+            "precision": 0.4444,
+            "recall": 0.2264,
+            "f1": 0.3
+          },
+          "crack": {
+            "tp": 4,
+            "fp": 14,
+            "fn": 9,
+            "gt": 13,
+            "precision": 0.2222,
+            "recall": 0.3077,
+            "f1": 0.2581
+          },
+          "glass shatter": {
+            "tp": 9,
+            "fp": 4,
+            "fn": 3,
+            "gt": 12,
+            "precision": 0.6923,
+            "recall": 0.75,
+            "f1": 0.72
+          },
+          "lamp broken": {
+            "tp": 7,
+            "fp": 5,
+            "fn": 8,
+            "gt": 15,
+            "precision": 0.5833,
+            "recall": 0.4667,
+            "f1": 0.5185
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 5,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.5,
+            "recall": 0.8333,
+            "f1": 0.625
+          }
+        }
+      },
+      "tau_0.25": {
+        "overall": {
+          "tp": 45,
+          "fp": 49,
+          "fn": 103,
+          "gt": 148,
+          "precision": 0.4787,
+          "recall": 0.3041,
+          "f1": 0.3719
+        },
+        "per_class": {
+          "dent": {
+            "tp": 14,
+            "fp": 19,
+            "fn": 35,
+            "gt": 49,
+            "precision": 0.4242,
+            "recall": 0.2857,
+            "f1": 0.3415
+          },
+          "scratch": {
+            "tp": 10,
+            "fp": 11,
+            "fn": 43,
+            "gt": 53,
+            "precision": 0.4762,
+            "recall": 0.1887,
+            "f1": 0.2703
+          },
+          "crack": {
+            "tp": 1,
+            "fp": 8,
+            "fn": 12,
+            "gt": 13,
+            "precision": 0.1111,
+            "recall": 0.0769,
+            "f1": 0.0909
+          },
+          "glass shatter": {
+            "tp": 9,
+            "fp": 3,
+            "fn": 3,
+            "gt": 12,
+            "precision": 0.75,
+            "recall": 0.75,
+            "f1": 0.75
+          },
+          "lamp broken": {
+            "tp": 7,
+            "fp": 4,
+            "fn": 8,
+            "gt": 15,
+            "precision": 0.6364,
+            "recall": 0.4667,
+            "f1": 0.5385
+          },
+          "tire flat": {
+            "tp": 4,
+            "fp": 4,
+            "fn": 2,
+            "gt": 6,
+            "precision": 0.5,
+            "recall": 0.6667,
+            "f1": 0.5714
+          }
+        }
+      },
+      "tau_0.30": {
+        "overall": {
+          "tp": 42,
+          "fp": 43,
+          "fn": 106,
+          "gt": 148,
+          "precision": 0.4941,
+          "recall": 0.2838,
+          "f1": 0.3605
+        },
+        "per_class": {
+          "dent": {
+            "tp": 12,
+            "fp": 19,
+            "fn": 37,
+            "gt": 49,
+            "precision": 0.3871,
+            "recall": 0.2449,
+            "f1": 0.3
+          },
+          "scratch": {
+            "tp": 9,
+            "fp": 9,
+            "fn": 44,
+            "gt": 53,
+            "precision": 0.5,
+            "recall": 0.1698,
+            "f1": 0.2535
+          },
+          "crack": {
+            "tp": 1,
+            "fp": 5,
+            "fn": 12,
+            "gt": 13,
+            "precision": 0.1667,
+            "recall": 0.0769,
+            "f1": 0.1053
+          },
+          "glass shatter": {
+            "tp": 9,
+            "fp": 3,
+            "fn": 3,
+            "gt": 12,
+            "precision": 0.75,
+            "recall": 0.75,
+            "f1": 0.75
+          },
+          "lamp broken": {
+            "tp": 7,
+            "fp": 3,
+            "fn": 8,
+            "gt": 15,
+            "precision": 0.7,
+            "recall": 0.4667,
+            "f1": 0.56
+          },
+          "tire flat": {
+            "tp": 4,
+            "fp": 4,
+            "fn": 2,
+            "gt": 6,
+            "precision": 0.5,
+            "recall": 0.6667,
+            "f1": 0.5714
+          }
+        }
+      },
+      "tau_0.35": {
+        "overall": {
+          "tp": 41,
+          "fp": 35,
+          "fn": 107,
+          "gt": 148,
+          "precision": 0.5395,
+          "recall": 0.277,
+          "f1": 0.3661
+        },
+        "per_class": {
+          "dent": {
+            "tp": 11,
+            "fp": 16,
+            "fn": 38,
+            "gt": 49,
+            "precision": 0.4074,
+            "recall": 0.2245,
+            "f1": 0.2895
+          },
+          "scratch": {
+            "tp": 9,
+            "fp": 7,
+            "fn": 44,
+            "gt": 53,
+            "precision": 0.5625,
+            "recall": 0.1698,
+            "f1": 0.2609
+          },
+          "crack": {
+            "tp": 1,
+            "fp": 3,
+            "fn": 12,
+            "gt": 13,
+            "precision": 0.25,
+            "recall": 0.0769,
+            "f1": 0.1176
+          },
+          "glass shatter": {
+            "tp": 9,
+            "fp": 3,
+            "fn": 3,
+            "gt": 12,
+            "precision": 0.75,
+            "recall": 0.75,
+            "f1": 0.75
+          },
+          "lamp broken": {
+            "tp": 7,
+            "fp": 2,
+            "fn": 8,
+            "gt": 15,
+            "precision": 0.7778,
+            "recall": 0.4667,
+            "f1": 0.5833
+          },
+          "tire flat": {
+            "tp": 4,
+            "fp": 4,
+            "fn": 2,
+            "gt": 6,
+            "precision": 0.5,
+            "recall": 0.6667,
+            "f1": 0.5714
+          }
+        }
+      },
+      "tau_0.40": {
+        "overall": {
+          "tp": 34,
+          "fp": 28,
+          "fn": 114,
+          "gt": 148,
+          "precision": 0.5484,
+          "recall": 0.2297,
+          "f1": 0.3238
+        },
+        "per_class": {
+          "dent": {
+            "tp": 10,
+            "fp": 13,
+            "fn": 39,
+            "gt": 49,
+            "precision": 0.4348,
+            "recall": 0.2041,
+            "f1": 0.2778
+          },
+          "scratch": {
+            "tp": 4,
+            "fp": 4,
+            "fn": 49,
+            "gt": 53,
+            "precision": 0.5,
+            "recall": 0.0755,
+            "f1": 0.1311
+          },
+          "crack": {
+            "tp": 1,
+            "fp": 2,
+            "fn": 12,
+            "gt": 13,
+            "precision": 0.3333,
+            "recall": 0.0769,
+            "f1": 0.125
+          },
+          "glass shatter": {
+            "tp": 8,
+            "fp": 3,
+            "fn": 4,
+            "gt": 12,
+            "precision": 0.7273,
+            "recall": 0.6667,
+            "f1": 0.6957
+          },
+          "lamp broken": {
+            "tp": 7,
+            "fp": 2,
+            "fn": 8,
+            "gt": 15,
+            "precision": 0.7778,
+            "recall": 0.4667,
+            "f1": 0.5833
+          },
+          "tire flat": {
+            "tp": 4,
+            "fp": 4,
+            "fn": 2,
+            "gt": 6,
+            "precision": 0.5,
+            "recall": 0.6667,
+            "f1": 0.5714
+          }
+        }
+      },
+      "tau_0.50": {
+        "overall": {
+          "tp": 30,
+          "fp": 18,
+          "fn": 118,
+          "gt": 148,
+          "precision": 0.625,
+          "recall": 0.2027,
+          "f1": 0.3061
+        },
+        "per_class": {
+          "dent": {
+            "tp": 8,
+            "fp": 9,
+            "fn": 41,
+            "gt": 49,
+            "precision": 0.4706,
+            "recall": 0.1633,
+            "f1": 0.2424
+          },
+          "scratch": {
+            "tp": 4,
+            "fp": 3,
+            "fn": 49,
+            "gt": 53,
+            "precision": 0.5714,
+            "recall": 0.0755,
+            "f1": 0.1333
+          },
+          "crack": {
+            "tp": 1,
+            "fp": 0,
+            "fn": 12,
+            "gt": 13,
+            "precision": 1.0,
+            "recall": 0.0769,
+            "f1": 0.1429
+          },
+          "glass shatter": {
+            "tp": 8,
+            "fp": 3,
+            "fn": 4,
+            "gt": 12,
+            "precision": 0.7273,
+            "recall": 0.6667,
+            "f1": 0.6957
+          },
+          "lamp broken": {
+            "tp": 6,
+            "fp": 1,
+            "fn": 9,
+            "gt": 15,
+            "precision": 0.8571,
+            "recall": 0.4,
+            "f1": 0.5455
+          },
+          "tire flat": {
+            "tp": 3,
+            "fp": 2,
+            "fn": 3,
+            "gt": 6,
+            "precision": 0.6,
+            "recall": 0.5,
+            "f1": 0.5455
+          }
+        }
+      }
+    }
+  },
+  "P912-EXP02 HiRes 800": {
+    "model_name": "P912-EXP02 HiRes 800",
+    "weight_path": "runs/phase9_12/experiments/P912_EXP02_hires_800/weights/best.pt",
+    "sha256": "2b674a9497131b6496f690cde26ad78ceafb6c7babe90f83de8e63bd71520ace",
+    "map50": 0.3961,
+    "map50_95": 0.2462,
+    "class_map50": {
+      "dent": 0.17087024078064747,
+      "scratch": 0.08192713954398649,
+      "crack": 0.029597686886698442,
+      "glass shatter": 0.5379829494422714,
+      "lamp broken": 0.19104818576704125,
+      "tire flat": 0.46572449832775914
+    },
+    "avg_latency_ms": 47.93,
+    "sweep_results": {
+      "tau_0.05": {
+        "overall": {
+          "tp": 84,
+          "fp": 285,
+          "fn": 64,
+          "gt": 148,
+          "precision": 0.2276,
+          "recall": 0.5676,
+          "f1": 0.325
+        },
+        "per_class": {
+          "dent": {
+            "tp": 29,
+            "fp": 81,
+            "fn": 20,
+            "gt": 49,
+            "precision": 0.2636,
+            "recall": 0.5918,
+            "f1": 0.3648
+          },
+          "scratch": {
+            "tp": 26,
+            "fp": 88,
+            "fn": 27,
+            "gt": 53,
+            "precision": 0.2281,
+            "recall": 0.4906,
+            "f1": 0.3114
+          },
+          "crack": {
+            "tp": 7,
+            "fp": 64,
+            "fn": 6,
+            "gt": 13,
+            "precision": 0.0986,
+            "recall": 0.5385,
+            "f1": 0.1667
+          },
+          "glass shatter": {
+            "tp": 9,
+            "fp": 10,
+            "fn": 3,
+            "gt": 12,
+            "precision": 0.4737,
+            "recall": 0.75,
+            "f1": 0.5806
+          },
+          "lamp broken": {
+            "tp": 8,
+            "fp": 31,
+            "fn": 7,
+            "gt": 15,
+            "precision": 0.2051,
+            "recall": 0.5333,
+            "f1": 0.2963
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 11,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.3125,
+            "recall": 0.8333,
+            "f1": 0.4545
+          }
+        }
+      },
+      "tau_0.10": {
+        "overall": {
+          "tp": 71,
+          "fp": 156,
+          "fn": 77,
+          "gt": 148,
+          "precision": 0.3128,
+          "recall": 0.4797,
+          "f1": 0.3787
+        },
+        "per_class": {
+          "dent": {
+            "tp": 25,
+            "fp": 47,
+            "fn": 24,
+            "gt": 49,
+            "precision": 0.3472,
+            "recall": 0.5102,
+            "f1": 0.4132
+          },
+          "scratch": {
+            "tp": 20,
+            "fp": 44,
+            "fn": 33,
+            "gt": 53,
+            "precision": 0.3125,
+            "recall": 0.3774,
+            "f1": 0.3419
+          },
+          "crack": {
+            "tp": 4,
+            "fp": 29,
+            "fn": 9,
+            "gt": 13,
+            "precision": 0.1212,
+            "recall": 0.3077,
+            "f1": 0.1739
+          },
+          "glass shatter": {
+            "tp": 9,
+            "fp": 5,
+            "fn": 3,
+            "gt": 12,
+            "precision": 0.6429,
+            "recall": 0.75,
+            "f1": 0.6923
+          },
+          "lamp broken": {
+            "tp": 8,
+            "fp": 20,
+            "fn": 7,
+            "gt": 15,
+            "precision": 0.2857,
+            "recall": 0.5333,
+            "f1": 0.3721
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 11,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.3125,
+            "recall": 0.8333,
+            "f1": 0.4545
+          }
+        }
+      },
+      "tau_0.15": {
+        "overall": {
+          "tp": 63,
+          "fp": 107,
+          "fn": 85,
+          "gt": 148,
+          "precision": 0.3706,
+          "recall": 0.4257,
+          "f1": 0.3962
+        },
+        "per_class": {
+          "dent": {
+            "tp": 24,
+            "fp": 32,
+            "fn": 25,
+            "gt": 49,
+            "precision": 0.4286,
+            "recall": 0.4898,
+            "f1": 0.4571
+          },
+          "scratch": {
+            "tp": 15,
+            "fp": 30,
+            "fn": 38,
+            "gt": 53,
+            "precision": 0.3333,
+            "recall": 0.283,
+            "f1": 0.3061
+          },
+          "crack": {
+            "tp": 3,
+            "fp": 18,
+            "fn": 10,
+            "gt": 13,
+            "precision": 0.1429,
+            "recall": 0.2308,
+            "f1": 0.1765
+          },
+          "glass shatter": {
+            "tp": 9,
+            "fp": 3,
+            "fn": 3,
+            "gt": 12,
+            "precision": 0.75,
+            "recall": 0.75,
+            "f1": 0.75
+          },
+          "lamp broken": {
+            "tp": 7,
+            "fp": 15,
+            "fn": 8,
+            "gt": 15,
+            "precision": 0.3182,
+            "recall": 0.4667,
+            "f1": 0.3784
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 9,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.3571,
+            "recall": 0.8333,
+            "f1": 0.5
+          }
+        }
+      },
+      "tau_0.20": {
+        "overall": {
+          "tp": 53,
+          "fp": 78,
+          "fn": 95,
+          "gt": 148,
+          "precision": 0.4046,
+          "recall": 0.3581,
+          "f1": 0.3799
+        },
+        "per_class": {
+          "dent": {
+            "tp": 19,
+            "fp": 21,
+            "fn": 30,
+            "gt": 49,
+            "precision": 0.475,
+            "recall": 0.3878,
+            "f1": 0.427
+          },
+          "scratch": {
+            "tp": 12,
+            "fp": 23,
+            "fn": 41,
+            "gt": 53,
+            "precision": 0.3429,
+            "recall": 0.2264,
+            "f1": 0.2727
+          },
+          "crack": {
+            "tp": 2,
+            "fp": 15,
+            "fn": 11,
+            "gt": 13,
+            "precision": 0.1176,
+            "recall": 0.1538,
+            "f1": 0.1333
+          },
+          "glass shatter": {
+            "tp": 8,
+            "fp": 3,
+            "fn": 4,
+            "gt": 12,
+            "precision": 0.7273,
+            "recall": 0.6667,
+            "f1": 0.6957
+          },
+          "lamp broken": {
+            "tp": 7,
+            "fp": 9,
+            "fn": 8,
+            "gt": 15,
+            "precision": 0.4375,
+            "recall": 0.4667,
+            "f1": 0.4516
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 7,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.4167,
+            "recall": 0.8333,
+            "f1": 0.5556
+          }
+        }
+      },
+      "tau_0.25": {
+        "overall": {
+          "tp": 51,
+          "fp": 55,
+          "fn": 97,
+          "gt": 148,
+          "precision": 0.4811,
+          "recall": 0.3446,
+          "f1": 0.4016
+        },
+        "per_class": {
+          "dent": {
+            "tp": 19,
+            "fp": 16,
+            "fn": 30,
+            "gt": 49,
+            "precision": 0.5429,
+            "recall": 0.3878,
+            "f1": 0.4524
+          },
+          "scratch": {
+            "tp": 11,
+            "fp": 13,
+            "fn": 42,
+            "gt": 53,
+            "precision": 0.4583,
+            "recall": 0.2075,
+            "f1": 0.2857
+          },
+          "crack": {
+            "tp": 1,
+            "fp": 13,
+            "fn": 12,
+            "gt": 13,
+            "precision": 0.0714,
+            "recall": 0.0769,
+            "f1": 0.0741
+          },
+          "glass shatter": {
+            "tp": 8,
+            "fp": 1,
+            "fn": 4,
+            "gt": 12,
+            "precision": 0.8889,
+            "recall": 0.6667,
+            "f1": 0.7619
+          },
+          "lamp broken": {
+            "tp": 7,
+            "fp": 6,
+            "fn": 8,
+            "gt": 15,
+            "precision": 0.5385,
+            "recall": 0.4667,
+            "f1": 0.5
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 6,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.4545,
+            "recall": 0.8333,
+            "f1": 0.5882
+          }
+        }
+      },
+      "tau_0.30": {
+        "overall": {
+          "tp": 45,
+          "fp": 41,
+          "fn": 103,
+          "gt": 148,
+          "precision": 0.5233,
+          "recall": 0.3041,
+          "f1": 0.3846
+        },
+        "per_class": {
+          "dent": {
+            "tp": 16,
+            "fp": 12,
+            "fn": 33,
+            "gt": 49,
+            "precision": 0.5714,
+            "recall": 0.3265,
+            "f1": 0.4156
+          },
+          "scratch": {
+            "tp": 10,
+            "fp": 8,
+            "fn": 43,
+            "gt": 53,
+            "precision": 0.5556,
+            "recall": 0.1887,
+            "f1": 0.2817
+          },
+          "crack": {
+            "tp": 0,
+            "fp": 10,
+            "fn": 13,
+            "gt": 13,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "glass shatter": {
+            "tp": 8,
+            "fp": 1,
+            "fn": 4,
+            "gt": 12,
+            "precision": 0.8889,
+            "recall": 0.6667,
+            "f1": 0.7619
+          },
+          "lamp broken": {
+            "tp": 6,
+            "fp": 5,
+            "fn": 9,
+            "gt": 15,
+            "precision": 0.5455,
+            "recall": 0.4,
+            "f1": 0.4615
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 5,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.5,
+            "recall": 0.8333,
+            "f1": 0.625
+          }
+        }
+      },
+      "tau_0.35": {
+        "overall": {
+          "tp": 37,
+          "fp": 31,
+          "fn": 111,
+          "gt": 148,
+          "precision": 0.5441,
+          "recall": 0.25,
+          "f1": 0.3426
+        },
+        "per_class": {
+          "dent": {
+            "tp": 14,
+            "fp": 10,
+            "fn": 35,
+            "gt": 49,
+            "precision": 0.5833,
+            "recall": 0.2857,
+            "f1": 0.3836
+          },
+          "scratch": {
+            "tp": 5,
+            "fp": 5,
+            "fn": 48,
+            "gt": 53,
+            "precision": 0.5,
+            "recall": 0.0943,
+            "f1": 0.1587
+          },
+          "crack": {
+            "tp": 0,
+            "fp": 6,
+            "fn": 13,
+            "gt": 13,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "glass shatter": {
+            "tp": 7,
+            "fp": 1,
+            "fn": 5,
+            "gt": 12,
+            "precision": 0.875,
+            "recall": 0.5833,
+            "f1": 0.7
+          },
+          "lamp broken": {
+            "tp": 6,
+            "fp": 4,
+            "fn": 9,
+            "gt": 15,
+            "precision": 0.6,
+            "recall": 0.4,
+            "f1": 0.48
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 5,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.5,
+            "recall": 0.8333,
+            "f1": 0.625
+          }
+        }
+      },
+      "tau_0.40": {
+        "overall": {
+          "tp": 35,
+          "fp": 25,
+          "fn": 113,
+          "gt": 148,
+          "precision": 0.5833,
+          "recall": 0.2365,
+          "f1": 0.3365
+        },
+        "per_class": {
+          "dent": {
+            "tp": 14,
+            "fp": 7,
+            "fn": 35,
+            "gt": 49,
+            "precision": 0.6667,
+            "recall": 0.2857,
+            "f1": 0.4
+          },
+          "scratch": {
+            "tp": 3,
+            "fp": 4,
+            "fn": 50,
+            "gt": 53,
+            "precision": 0.4286,
+            "recall": 0.0566,
+            "f1": 0.1
+          },
+          "crack": {
+            "tp": 0,
+            "fp": 4,
+            "fn": 13,
+            "gt": 13,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "glass shatter": {
+            "tp": 7,
+            "fp": 1,
+            "fn": 5,
+            "gt": 12,
+            "precision": 0.875,
+            "recall": 0.5833,
+            "f1": 0.7
+          },
+          "lamp broken": {
+            "tp": 6,
+            "fp": 4,
+            "fn": 9,
+            "gt": 15,
+            "precision": 0.6,
+            "recall": 0.4,
+            "f1": 0.48
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 5,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.5,
+            "recall": 0.8333,
+            "f1": 0.625
+          }
+        }
+      },
+      "tau_0.50": {
+        "overall": {
+          "tp": 25,
+          "fp": 16,
+          "fn": 123,
+          "gt": 148,
+          "precision": 0.6098,
+          "recall": 0.1689,
+          "f1": 0.2646
+        },
+        "per_class": {
+          "dent": {
+            "tp": 8,
+            "fp": 3,
+            "fn": 41,
+            "gt": 49,
+            "precision": 0.7273,
+            "recall": 0.1633,
+            "f1": 0.2667
+          },
+          "scratch": {
+            "tp": 2,
+            "fp": 3,
+            "fn": 51,
+            "gt": 53,
+            "precision": 0.4,
+            "recall": 0.0377,
+            "f1": 0.069
+          },
+          "crack": {
+            "tp": 0,
+            "fp": 3,
+            "fn": 13,
+            "gt": 13,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "glass shatter": {
+            "tp": 7,
+            "fp": 0,
+            "fn": 5,
+            "gt": 12,
+            "precision": 1.0,
+            "recall": 0.5833,
+            "f1": 0.7368
+          },
+          "lamp broken": {
+            "tp": 4,
+            "fp": 4,
+            "fn": 11,
+            "gt": 15,
+            "precision": 0.5,
+            "recall": 0.2667,
+            "f1": 0.3478
+          },
+          "tire flat": {
+            "tp": 4,
+            "fp": 3,
+            "fn": 2,
+            "gt": 6,
+            "precision": 0.5714,
+            "recall": 0.6667,
+            "f1": 0.6154
+          }
+        }
+      }
+    }
+  },
+  "P912-EXP03 Loss Tuned": {
+    "model_name": "P912-EXP03 Loss Tuned",
+    "weight_path": "runs/phase9_12/experiments/P912_EXP03_loss_tuned/weights/best.pt",
+    "sha256": "ec93eafcb9451cbe6b0f059a030889aaeeeb967f0cc20f1bea45c9b501e51e68",
+    "map50": 0.4441,
+    "map50_95": 0.2697,
+    "class_map50": {
+      "dent": 0.12008062908756786,
+      "scratch": 0.0712481617261129,
+      "crack": 0.1640584835480316,
+      "glass shatter": 0.5468571428571428,
+      "lamp broken": 0.21134510667018938,
+      "tire flat": 0.5046666666666667
+    },
+    "avg_latency_ms": 58.57,
+    "sweep_results": {
+      "tau_0.05": {
+        "overall": {
+          "tp": 86,
+          "fp": 235,
+          "fn": 62,
+          "gt": 148,
+          "precision": 0.2679,
+          "recall": 0.5811,
+          "f1": 0.3667
+        },
+        "per_class": {
+          "dent": {
+            "tp": 29,
+            "fp": 68,
+            "fn": 20,
+            "gt": 49,
+            "precision": 0.299,
+            "recall": 0.5918,
+            "f1": 0.3973
+          },
+          "scratch": {
+            "tp": 26,
+            "fp": 99,
+            "fn": 27,
+            "gt": 53,
+            "precision": 0.208,
+            "recall": 0.4906,
+            "f1": 0.2921
+          },
+          "crack": {
+            "tp": 5,
+            "fp": 35,
+            "fn": 8,
+            "gt": 13,
+            "precision": 0.125,
+            "recall": 0.3846,
+            "f1": 0.1887
+          },
+          "glass shatter": {
+            "tp": 10,
+            "fp": 13,
+            "fn": 2,
+            "gt": 12,
+            "precision": 0.4348,
+            "recall": 0.8333,
+            "f1": 0.5714
+          },
+          "lamp broken": {
+            "tp": 11,
+            "fp": 12,
+            "fn": 4,
+            "gt": 15,
+            "precision": 0.4783,
+            "recall": 0.7333,
+            "f1": 0.5789
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 8,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.3846,
+            "recall": 0.8333,
+            "f1": 0.5263
+          }
+        }
+      },
+      "tau_0.10": {
+        "overall": {
+          "tp": 69,
+          "fp": 132,
+          "fn": 79,
+          "gt": 148,
+          "precision": 0.3433,
+          "recall": 0.4662,
+          "f1": 0.3954
+        },
+        "per_class": {
+          "dent": {
+            "tp": 19,
+            "fp": 34,
+            "fn": 30,
+            "gt": 49,
+            "precision": 0.3585,
+            "recall": 0.3878,
+            "f1": 0.3725
+          },
+          "scratch": {
+            "tp": 23,
+            "fp": 60,
+            "fn": 30,
+            "gt": 53,
+            "precision": 0.2771,
+            "recall": 0.434,
+            "f1": 0.3382
+          },
+          "crack": {
+            "tp": 3,
+            "fp": 15,
+            "fn": 10,
+            "gt": 13,
+            "precision": 0.1667,
+            "recall": 0.2308,
+            "f1": 0.1935
+          },
+          "glass shatter": {
+            "tp": 10,
+            "fp": 11,
+            "fn": 2,
+            "gt": 12,
+            "precision": 0.4762,
+            "recall": 0.8333,
+            "f1": 0.6061
+          },
+          "lamp broken": {
+            "tp": 9,
+            "fp": 7,
+            "fn": 6,
+            "gt": 15,
+            "precision": 0.5625,
+            "recall": 0.6,
+            "f1": 0.5806
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 5,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.5,
+            "recall": 0.8333,
+            "f1": 0.625
+          }
+        }
+      },
+      "tau_0.15": {
+        "overall": {
+          "tp": 60,
+          "fp": 89,
+          "fn": 88,
+          "gt": 148,
+          "precision": 0.4027,
+          "recall": 0.4054,
+          "f1": 0.404
+        },
+        "per_class": {
+          "dent": {
+            "tp": 14,
+            "fp": 28,
+            "fn": 35,
+            "gt": 49,
+            "precision": 0.3333,
+            "recall": 0.2857,
+            "f1": 0.3077
+          },
+          "scratch": {
+            "tp": 20,
+            "fp": 39,
+            "fn": 33,
+            "gt": 53,
+            "precision": 0.339,
+            "recall": 0.3774,
+            "f1": 0.3571
+          },
+          "crack": {
+            "tp": 3,
+            "fp": 8,
+            "fn": 10,
+            "gt": 13,
+            "precision": 0.2727,
+            "recall": 0.2308,
+            "f1": 0.25
+          },
+          "glass shatter": {
+            "tp": 10,
+            "fp": 5,
+            "fn": 2,
+            "gt": 12,
+            "precision": 0.6667,
+            "recall": 0.8333,
+            "f1": 0.7407
+          },
+          "lamp broken": {
+            "tp": 8,
+            "fp": 5,
+            "fn": 7,
+            "gt": 15,
+            "precision": 0.6154,
+            "recall": 0.5333,
+            "f1": 0.5714
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 4,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.5556,
+            "recall": 0.8333,
+            "f1": 0.6667
+          }
+        }
+      },
+      "tau_0.20": {
+        "overall": {
+          "tp": 54,
+          "fp": 67,
+          "fn": 94,
+          "gt": 148,
+          "precision": 0.4463,
+          "recall": 0.3649,
+          "f1": 0.4015
+        },
+        "per_class": {
+          "dent": {
+            "tp": 11,
+            "fp": 19,
+            "fn": 38,
+            "gt": 49,
+            "precision": 0.3667,
+            "recall": 0.2245,
+            "f1": 0.2785
+          },
+          "scratch": {
+            "tp": 19,
+            "fp": 32,
+            "fn": 34,
+            "gt": 53,
+            "precision": 0.3725,
+            "recall": 0.3585,
+            "f1": 0.3654
+          },
+          "crack": {
+            "tp": 3,
+            "fp": 5,
+            "fn": 10,
+            "gt": 13,
+            "precision": 0.375,
+            "recall": 0.2308,
+            "f1": 0.2857
+          },
+          "glass shatter": {
+            "tp": 8,
+            "fp": 4,
+            "fn": 4,
+            "gt": 12,
+            "precision": 0.6667,
+            "recall": 0.6667,
+            "f1": 0.6667
+          },
+          "lamp broken": {
+            "tp": 8,
+            "fp": 4,
+            "fn": 7,
+            "gt": 15,
+            "precision": 0.6667,
+            "recall": 0.5333,
+            "f1": 0.5926
+          },
+          "tire flat": {
+            "tp": 5,
+            "fp": 3,
+            "fn": 1,
+            "gt": 6,
+            "precision": 0.625,
+            "recall": 0.8333,
+            "f1": 0.7143
+          }
+        }
+      },
+      "tau_0.25": {
+        "overall": {
+          "tp": 46,
+          "fp": 44,
+          "fn": 102,
+          "gt": 148,
+          "precision": 0.5111,
+          "recall": 0.3108,
+          "f1": 0.3866
+        },
+        "per_class": {
+          "dent": {
+            "tp": 9,
+            "fp": 13,
+            "fn": 40,
+            "gt": 49,
+            "precision": 0.4091,
+            "recall": 0.1837,
+            "f1": 0.2535
+          },
+          "scratch": {
+            "tp": 14,
+            "fp": 19,
+            "fn": 39,
+            "gt": 53,
+            "precision": 0.4242,
+            "recall": 0.2642,
+            "f1": 0.3256
+          },
+          "crack": {
+            "tp": 3,
+            "fp": 4,
+            "fn": 10,
+            "gt": 13,
+            "precision": 0.4286,
+            "recall": 0.2308,
+            "f1": 0.3
+          },
+          "glass shatter": {
+            "tp": 8,
+            "fp": 3,
+            "fn": 4,
+            "gt": 12,
+            "precision": 0.7273,
+            "recall": 0.6667,
+            "f1": 0.6957
+          },
+          "lamp broken": {
+            "tp": 8,
+            "fp": 3,
+            "fn": 7,
+            "gt": 15,
+            "precision": 0.7273,
+            "recall": 0.5333,
+            "f1": 0.6154
+          },
+          "tire flat": {
+            "tp": 4,
+            "fp": 2,
+            "fn": 2,
+            "gt": 6,
+            "precision": 0.6667,
+            "recall": 0.6667,
+            "f1": 0.6667
+          }
+        }
+      },
+      "tau_0.30": {
+        "overall": {
+          "tp": 40,
+          "fp": 32,
+          "fn": 108,
+          "gt": 148,
+          "precision": 0.5556,
+          "recall": 0.2703,
+          "f1": 0.3636
+        },
+        "per_class": {
+          "dent": {
+            "tp": 7,
+            "fp": 8,
+            "fn": 42,
+            "gt": 49,
+            "precision": 0.4667,
+            "recall": 0.1429,
+            "f1": 0.2187
+          },
+          "scratch": {
+            "tp": 11,
+            "fp": 15,
+            "fn": 42,
+            "gt": 53,
+            "precision": 0.4231,
+            "recall": 0.2075,
+            "f1": 0.2785
+          },
+          "crack": {
+            "tp": 3,
+            "fp": 2,
+            "fn": 10,
+            "gt": 13,
+            "precision": 0.6,
+            "recall": 0.2308,
+            "f1": 0.3333
+          },
+          "glass shatter": {
+            "tp": 8,
+            "fp": 3,
+            "fn": 4,
+            "gt": 12,
+            "precision": 0.7273,
+            "recall": 0.6667,
+            "f1": 0.6957
+          },
+          "lamp broken": {
+            "tp": 8,
+            "fp": 3,
+            "fn": 7,
+            "gt": 15,
+            "precision": 0.7273,
+            "recall": 0.5333,
+            "f1": 0.6154
+          },
+          "tire flat": {
+            "tp": 3,
+            "fp": 1,
+            "fn": 3,
+            "gt": 6,
+            "precision": 0.75,
+            "recall": 0.5,
+            "f1": 0.6
+          }
+        }
+      },
+      "tau_0.35": {
+        "overall": {
+          "tp": 34,
+          "fp": 27,
+          "fn": 114,
+          "gt": 148,
+          "precision": 0.5574,
+          "recall": 0.2297,
+          "f1": 0.3254
+        },
+        "per_class": {
+          "dent": {
+            "tp": 7,
+            "fp": 7,
+            "fn": 42,
+            "gt": 49,
+            "precision": 0.5,
+            "recall": 0.1429,
+            "f1": 0.2222
+          },
+          "scratch": {
+            "tp": 7,
+            "fp": 11,
+            "fn": 46,
+            "gt": 53,
+            "precision": 0.3889,
+            "recall": 0.1321,
+            "f1": 0.1972
+          },
+          "crack": {
+            "tp": 2,
+            "fp": 2,
+            "fn": 11,
+            "gt": 13,
+            "precision": 0.5,
+            "recall": 0.1538,
+            "f1": 0.2353
+          },
+          "glass shatter": {
+            "tp": 8,
+            "fp": 3,
+            "fn": 4,
+            "gt": 12,
+            "precision": 0.7273,
+            "recall": 0.6667,
+            "f1": 0.6957
+          },
+          "lamp broken": {
+            "tp": 7,
+            "fp": 3,
+            "fn": 8,
+            "gt": 15,
+            "precision": 0.7,
+            "recall": 0.4667,
+            "f1": 0.56
+          },
+          "tire flat": {
+            "tp": 3,
+            "fp": 1,
+            "fn": 3,
+            "gt": 6,
+            "precision": 0.75,
+            "recall": 0.5,
+            "f1": 0.6
+          }
+        }
+      },
+      "tau_0.40": {
+        "overall": {
+          "tp": 30,
+          "fp": 21,
+          "fn": 118,
+          "gt": 148,
+          "precision": 0.5882,
+          "recall": 0.2027,
+          "f1": 0.3015
+        },
+        "per_class": {
+          "dent": {
+            "tp": 6,
+            "fp": 4,
+            "fn": 43,
+            "gt": 49,
+            "precision": 0.6,
+            "recall": 0.1224,
+            "f1": 0.2034
+          },
+          "scratch": {
+            "tp": 6,
+            "fp": 9,
+            "fn": 47,
+            "gt": 53,
+            "precision": 0.4,
+            "recall": 0.1132,
+            "f1": 0.1765
+          },
+          "crack": {
+            "tp": 2,
+            "fp": 2,
+            "fn": 11,
+            "gt": 13,
+            "precision": 0.5,
+            "recall": 0.1538,
+            "f1": 0.2353
+          },
+          "glass shatter": {
+            "tp": 8,
+            "fp": 2,
+            "fn": 4,
+            "gt": 12,
+            "precision": 0.8,
+            "recall": 0.6667,
+            "f1": 0.7273
+          },
+          "lamp broken": {
+            "tp": 5,
+            "fp": 3,
+            "fn": 10,
+            "gt": 15,
+            "precision": 0.625,
+            "recall": 0.3333,
+            "f1": 0.4348
+          },
+          "tire flat": {
+            "tp": 3,
+            "fp": 1,
+            "fn": 3,
+            "gt": 6,
+            "precision": 0.75,
+            "recall": 0.5,
+            "f1": 0.6
+          }
+        }
+      },
+      "tau_0.50": {
+        "overall": {
+          "tp": 25,
+          "fp": 10,
+          "fn": 123,
+          "gt": 148,
+          "precision": 0.7143,
+          "recall": 0.1689,
+          "f1": 0.2732
+        },
+        "per_class": {
+          "dent": {
+            "tp": 6,
+            "fp": 2,
+            "fn": 43,
+            "gt": 49,
+            "precision": 0.75,
+            "recall": 0.1224,
+            "f1": 0.2105
+          },
+          "scratch": {
+            "tp": 2,
+            "fp": 4,
+            "fn": 51,
+            "gt": 53,
+            "precision": 0.3333,
+            "recall": 0.0377,
+            "f1": 0.0678
+          },
+          "crack": {
+            "tp": 2,
+            "fp": 0,
+            "fn": 11,
+            "gt": 13,
+            "precision": 1.0,
+            "recall": 0.1538,
+            "f1": 0.2667
+          },
+          "glass shatter": {
+            "tp": 8,
+            "fp": 2,
+            "fn": 4,
+            "gt": 12,
+            "precision": 0.8,
+            "recall": 0.6667,
+            "f1": 0.7273
+          },
+          "lamp broken": {
+            "tp": 4,
+            "fp": 1,
+            "fn": 11,
+            "gt": 15,
+            "precision": 0.8,
+            "recall": 0.2667,
+            "f1": 0.4
+          },
+          "tire flat": {
+            "tp": 3,
+            "fp": 1,
+            "fn": 3,
+            "gt": 6,
+            "precision": 0.75,
+            "recall": 0.5,
+            "f1": 0.6
+          }
+        }
+      }
+    }
+  }
+}

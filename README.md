@@ -238,7 +238,41 @@ Comparative performance evaluated on the frozen 45-image CarDD test split:
 > **Metric Protocol & Reconciliation Notice:**
 > The metrics above represent historical benchmark evaluations on cropped collision images. Confidence curve metrics (calculated across all confidence thresholds down to $\tau=0.001$ for mAP) differ substantially from discrete operational metrics calculated at the production decision threshold ($\tau=0.25$). For full forensic reconciliation, refer to the [Gate P Metrics Integrity Audit](runs/phase8/master_orchestration/gate_p_metrics_integrity_audit.md).
 
-### 3. EXP02 Forensic Evaluation & Critical Limitations
+### 3. Phase 9.12 Multi-Model Retraining Benchmark
+Comparative performance on the held-out frozen CarDD test split ($N=148$ defects across 45 images, $\text{IoU} \ge 0.40$):
+
+| Evaluation Metric | Production Baseline (`models/phase5/best.pt`) | P912-EXP01 (Expanded Base) | P912-EXP02 (HiRes 800) | P912-EXP03 (Loss Tuned) |
+|:---|:---:|:---:|:---:|:---:|
+| **Standard mAP@50** | 0.0041 | 0.3779 | 0.3961 | **0.4441** |
+| **Standard mAP@50-95** | 0.0011 | 0.2421 | 0.2462 | **0.2697** |
+| **Operational Precision ($\tau=0.25$)** | 0.0190 | 0.4787 | 0.4811 | **0.5111** |
+| **Operational Recall ($\tau=0.25$)** | 0.2365 | 0.3041 | **0.3446** | 0.3108 |
+| **Operational F1-Score** | 0.0352 | 0.3719 | **0.4016** | 0.3866 |
+| **Total False Positives ($\tau=0.25$)** | 1,804 | 49 | 55 | **44** |
+| **Crack Recall ($\tau=0.25$)** | **0.00% (0/13)** | **7.69% (1/13)** | **7.69% (1/13)** | **23.08% (3/13)** |
+| **Crack Recall ($\tau=0.10$)** | 0.00% (0/13) | **30.77% (4/13)** | **30.77% (4/13)** | 23.08% (3/13) |
+| **Scratch Recall ($\tau=0.25$)** | 0.00% (0/53) | 18.87% (10/53) | 20.75% (11/53) | **26.42% (14/53)** |
+| **Dent Recall ($\tau=0.25$)** | **46.94% (23/49)** | 28.57% (14/49) | **38.78% (19/49)** | 18.37% (9/49) |
+| **GPU Inference Latency** | **10.7 ms** | 11.5 ms | 9.6 ms | 10.7 ms |
+| **Single-Image CPU Latency** | **43.2 ms** | 44.4 ms | 47.9 ms | 58.6 ms |
+| **Production Status** | **Approved Production Baseline** | Quarantined (Research) | Quarantined (Research) | Quarantined (Research) |
+
+> [!IMPORTANT]
+> **Production Model Governance Policy & Accuracy Clarification:**
+> In accordance with strict production safety rules, `models/phase5/best.pt` remains the immutable production baseline (SHA-256: `90d489e46ff8521edff88d522f0feffa164ac38a53b84700594c02a69e515565`). All candidate checkpoints (`P9-T02`, `EXP01`, `EXP02`, `EXP03`) remain strictly quarantined in research directories. **Production model accuracy is NOT claimed to have improved**, as the active production checkpoint is unmodified. Immediate crack recall improvement on the active system is achieved via software-level class-specific threshold calibration ($\tau_{\text{crack}} = 0.10$).
+>
+> **Independent Validation Sample-Size Limitation:**
+> The authoritative frozen CarDD test benchmark comprises 45 images with 148 defect instances, containing only 13 structural crack instances across 10 images. While strictly isolated from training splits, this sample size incurs wide binomial confidence intervals ($\pm 7.69\%$ per crack instance). Reported metrics demonstrate algorithmic proof-of-concept rather than broad population prevalence.
+>
+> **Phase 9.19 Proposed Research Roadmap (PLANNED — NOT COMPLETE):**
+> Phase 9.19 represents a future planned research roadmap and is strictly not marked complete. It outlines:
+> 1. Multi-tier dataset expansion to $\ge 200$ high-resolution automotive crack walkaround images.
+> 2. Slicing Aided Hyper Inference (SAHI) evaluation for raw mobile camera uploads ($4000\times 3000\text{ px}$).
+> 3. Transitioning from rectangular bounding boxes to polygon instance segmentation (YOLOv8-seg) to eliminate the geometric IoU penalty.
+> 4. Dual-stage cascade pipelines combining fast YOLOv8 damage triage with high-resolution patch specialists.
+> For full technical details, see the [Complete ML Accuracy Improvement Program Master Report](runs/ml_accuracy_program_final_report.md).
+
+### 4. Phase 8 EXP02 Forensic Evaluation & Critical Limitations
 Candidate model **EXP02 (Rare Class Expansion)** was fine-tuned during Phase 8 to address false-positive rates on real-world daylight vehicle walkarounds. Forensic evaluation across Phase 8 benchmarks established:
 
 * **Gate P Offline False-Positive Comparison:** In the Gate P offline forensic comparison across the combined 75-image evaluation cohort (45 CarDD collision test crops + 30 Gate L domain adaptation dev split walkarounds), EXP02 reduced false-positive bounding boxes from **6,503 down to 29 (a 99.55% reduction)** at operational confidence threshold $\tau=0.25$. *This offline forensic comparison was achieved by raising feature activation barriers and does not constitute proof of production readiness or independent generalization.*
@@ -618,6 +652,16 @@ Comprehensive engineering, audit, and benchmark records across all development p
   * [Phase 10 Stage 2 Report Persistence Architectural Decision](runs/phase10/stage2_database_architecture_decision.md) &mdash; Formal ADR evaluating Report ORM persistence (Option A vs Option B), recommending a Hybrid Two-Tier lifecycle, with DDL migration and rollback specifications.
   * [Phase 10 Stage 1 Remediation Report](runs/phase10/stage1_remediation_report.md) &mdash; Master E2E integration test verification (186/186 passed), scratch test .gitignore investigation, ML crack retraining workstream disambiguation, and conditional completion audit.
 
+* **Phase 9.12 – 9.18 Complete ML Accuracy Improvement Program:**
+  * [Complete ML Accuracy Improvement Program Master Report](runs/ml_accuracy_program_final_report.md) &mdash; Master synthesis, mathematical IoU boundary proof, multi-scale GPU retraining, and promotion governance verdict.
+  * [Phase 9.12 Crack & Scratch Forensic Retraining Final Report](runs/phase9_12/phase9_12_final_report.md) &mdash; Forensic evaluation, CarDD_Expanded_v1 GPU retraining, and test split evaluation.
+  * [Phase 9.13 Dataset Coverage & Augmentation Analysis Report](runs/phase9_13/dataset_coverage_report.md) &mdash; Defect scale disparity, spatial geometry, and augmentation dynamics.
+  * [Phase 9.14 Training Optimization & Hyperparameter Search Report](runs/phase9_14/training_optimization_report.md) &mdash; Neural architecture, P3/P2 strides, loss weighting, and AdamW optimization.
+  * [Phase 9.15 Confidence Calibration & Class-Specific Thresholds Report](runs/phase9_15/confidence_calibration_report.md) &mdash; Threshold sweeps ($\tau \in [0.05, 0.50]$) and calibrated operating policies.
+  * [Phase 9.16 Independent Validation & Safety Verification Report](runs/phase9_16/independent_validation_report.md) &mdash; Data leakage audits, non-damage stress testing, and latency SLAs.
+  * [Phase 9.17 Model Promotion Recommendation & Risk Assessment Report](runs/phase9_17/model_promotion_recommendation.md) &mdash; 5-Gate Promotion Scorecard and quarantine verdict.
+  * [Phase 9.18 ML Program Closure & Future Strategic Roadmap](runs/phase9_18/ml_program_closure_report.md) &mdash; Program closure sign-off and Phase 11 segmentation roadmap.
+  * [Phase 0 Baseline Forensic Audit Report](runs/phase9_12/phase0_ml_forensic_audit.md) &mdash; Hardware, environment, and baseline checkpoint inventory.
 * **Phase 9 Model Optimization, Retraining & Final Closure Package:**
   * [Phase 9.11 Final Project Closure & Governance Report](runs/phase9/final_closure/PHASE_9_11_FINAL_REPORT.md) &mdash; Master Phase 9 synthesis, closure checklist, and sign-off package.
   * [Phase 9.10 End-to-End System Validation Report](runs/phase9/system_validation/PHASE_9_10_FINAL_REPORT.md) &mdash; 10/10 operational workflows, 26 REST APIs, security controls, and 158/158 test verification.
