@@ -187,14 +187,84 @@ class VehicleDamageDetector:
 
         return None
 
+    def _resolve_conf_thresholds(
+        self,
+        conf_threshold: Union[float, int, Dict[Union[int, str], float]],
+        default_fallback: float = 0.15,
+    ) -> Tuple[float, Dict[int, float], bool]:
+        """Resolves scalar or dictionary conf_threshold into:
+        1. base_conf_for_predict: float passed to YOLO predict
+        2. per_class_thresholds: Dict[int, float] mapping class_id -> threshold
+        3. is_per_class: bool indicating whether dictionary thresholding is active
+        """
+        names_dict = self.class_names
+        name_to_id: Dict[str, int] = {}
+        for cid, cname in names_dict.items():
+            name_to_id[str(cid)] = cid
+            clean_name = str(cname).strip().lower()
+            name_to_id[clean_name] = cid
+            name_to_id[clean_name.replace(" ", "_")] = cid
+            name_to_id[clean_name.replace("_", " ")] = cid
+            name_to_id[clean_name.replace("-", "_")] = cid
+
+        if isinstance(conf_threshold, (int, float)):
+            val = float(conf_threshold)
+            if val < 0.0 or val > 1.0:
+                raise ValueError(f"Invalid conf_threshold: {val}. Must be between 0.0 and 1.0.")
+            effective = {int(cid): val for cid in names_dict.keys()}
+            return val, effective, False
+
+        elif isinstance(conf_threshold, dict):
+            if not conf_threshold:
+                # Empty dictionary falls back to default scalar
+                effective = {int(cid): float(default_fallback) for cid in names_dict.keys()}
+                return float(default_fallback), effective, True
+
+            effective = {int(cid): float(default_fallback) for cid in names_dict.keys()}
+            for k, v in conf_threshold.items():
+                if not isinstance(v, (int, float)):
+                    raise ValueError(f"Threshold value for '{k}' must be numeric, got {type(v).__name__}.")
+                v_flt = float(v)
+                if v_flt < 0.0 or v_flt > 1.0:
+                    raise ValueError(f"Invalid threshold for '{k}': {v_flt}. Must be between 0.0 and 1.0.")
+
+                matched_id = None
+                if isinstance(k, int) and k in names_dict:
+                    matched_id = k
+                elif isinstance(k, str):
+                    clean_k = k.strip().lower()
+                    if clean_k in name_to_id:
+                        matched_id = name_to_id[clean_k]
+                    elif clean_k.replace("-", "_") in name_to_id:
+                        matched_id = name_to_id[clean_k.replace("-", "_")]
+                    elif clean_k.replace("_", " ") in name_to_id:
+                        matched_id = name_to_id[clean_k.replace("_", " ")]
+
+                if matched_id is not None:
+                    effective[matched_id] = v_flt
+                else:
+                    raise ValueError(f"Unknown class key: '{k}'. Valid classes are: {list(names_dict.values())}")
+
+            base_predict_conf = min(effective.values())
+            return base_predict_conf, effective, True
+
+        else:
+            raise TypeError(
+                f"conf_threshold must be a float, int, or Dict[Union[int, str], float], "
+                f"got {type(conf_threshold).__name__}."
+            )
+
     def detect_damage(
         self,
         image_input: Union[str, Path, bytes, Image.Image],
-        conf_threshold: float = 0.15,
+        conf_threshold: Union[float, int, Dict[Union[int, str], float]] = 0.15,
         iou_threshold: float = 0.45,
         force_opencv_fallback: bool = False,
     ) -> Dict[str, Any]:
         """Runs damage detection on the given image.
+
+        Supports backward-compatible scalar confidence thresholds and granular per-class
+        confidence threshold dictionaries (e.g. {'dent': 0.18, 'scratch': 0.28, ...}).
 
         If YOLO model is loaded and force_opencv_fallback is False, executes YOLO inference.
         Otherwise executes graceful OpenCV structural/contour analysis without fabricating damage classes.
@@ -205,6 +275,15 @@ class VehicleDamageDetector:
 
         start_time = time.perf_counter()
 
+        # Resolve threshold mode and per-class targets
+        base_predict_conf, effective_thresholds, is_per_class = self._resolve_conf_thresholds(conf_threshold)
+
+        # Effective threshold mapping with class names for readable inspection
+        named_effective_thresholds = {
+            self.class_names.get(cid, f"cls_{cid}"): thresh
+            for cid, thresh in effective_thresholds.items()
+        }
+
         # Quality assessment (always executed)
         quality_assessment = assess_image_quality(np_img)
 
@@ -212,7 +291,7 @@ class VehicleDamageDetector:
         if self.model_loaded and not force_opencv_fallback and self.model is not None and hasattr(self.model, "predict"):
             results = self.model.predict(
                 source=pil_img,
-                conf=conf_threshold,
+                conf=base_predict_conf,
                 iou=iou_threshold,
                 device=self.device,
                 verbose=False,
@@ -237,7 +316,14 @@ class VehicleDamageDetector:
                     for idx, box in enumerate(boxes, start=1):
                         cls_id = int(box.cls[0].item())
                         conf = float(box.conf[0].item())
-                        xyxy = [float(v) for v in box.xyxy[0].tolist()]
+
+                        # Per-class threshold gate
+                        required_threshold = effective_thresholds.get(cls_id, 0.15)
+                        if conf < required_threshold:
+                            continue
+
+                        raw_xyxy = box.xyxy[0].tolist() if hasattr(box.xyxy[0], "tolist") else box.xyxy[0]
+                        xyxy = [float(v) for v in raw_xyxy]
 
                         # Clamp coordinates to image boundaries
                         x1 = max(0.0, min(float(img_w), xyxy[0]))
@@ -274,6 +360,12 @@ class VehicleDamageDetector:
 
             distinct_categories = sorted(list({d["category"] for d in detections}))
 
+            # Effective threshold mapping with class names for readable inspection
+            named_effective_thresholds = {
+                self.class_names.get(cid, f"cls_{cid}"): thresh
+                for cid, thresh in effective_thresholds.items()
+            }
+
             return {
                 "model_name": self.model_name,
                 "model_version": self.model_version,
@@ -282,6 +374,7 @@ class VehicleDamageDetector:
                 "device": self.device,
                 "image_dimensions": {"width": img_w, "height": img_h},
                 "conf_threshold": conf_threshold,
+                "effective_thresholds": named_effective_thresholds,
                 "total_detections": len(detections),
                 "damage_categories": distinct_categories,
                 "highest_confidence": round(highest_conf, 4),
@@ -343,6 +436,7 @@ class VehicleDamageDetector:
             "device": "cpu",
             "image_dimensions": {"width": img_w, "height": img_h},
             "conf_threshold": conf_threshold,
+            "effective_thresholds": named_effective_thresholds,
             "total_detections": 0,  # CRITICAL: 0 semantic damage detections
             "damage_categories": [],  # CRITICAL: no semantic categories fabricated
             "highest_confidence": 0.0,

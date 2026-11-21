@@ -600,3 +600,65 @@
   - **Workstream 9.19.2 (SAHI Inference Tiling):** Implement Slicing Aided Hyper Inference to process raw mobile camera uploads ($4000\times 3000\text{ px}$) in overlapping $640\times 640$ patches, preserving hairline crack resolution.
   - **Workstream 9.19.3 (Polygon Instance Segmentation):** Transition annotation and architecture from rectangular bounding boxes to polygon masks (YOLOv8-seg), eliminating rectangular IoU penalties along diagonal crack paths.
   - **Workstream 9.19.4 (Dual-Stage Ensemble):** Prototype a multi-stage pipeline utilizing YOLOv8n for fast macroscopic damage triage combined with a patch-specialist classifier for ambiguous hairline surface anomalies.
+
+
+---
+
+## Phase 9.19: Pre-Start Readiness & Release Closure
+- **Status:** COMPLETED & CLOSED — ZERO MODEL PROMOTION
+- **Date:** 2026-11-21
+- **Lead Roles:** Principal Software Architect, Senior Git Release Engineer, Computer Vision Research Scientist, MLOps Engineer, QA Lead & Model Governance Officer
+- **Key Milestones Finalized:**
+  - Complete review and verification of Phase 9.12–9.18 PR #1 merged into `main`.
+  - Quarantined `datasets/CarDD_300/test/` as a consumed exploratory benchmark to eliminate any risk of repeated-evaluation bias.
+  - Re-verified production checkpoint `models/phase5/best.pt` (`90d489e46ff8521edff88d522f0feffa164ac38a53b84700594c02a69e515565`).
+  - Pre-execution authorization package approved for Phase 9.20.
+
+---
+
+## Phase 9.20: Advanced Damage Detection, Per-Class Threshold Architecture & Forensic Verification
+- **Status:** COMPLETED & FORENSICALLY VERIFIED — AUTHORITATIVE GOVERNANCE VERDICT: RESEARCH COMPLETE, NO MODEL PROMOTION
+- **Date:** 2026-11-21
+- **Lead Roles:** Principal Computer Vision Research Scientist, YOLOv8 Architect, MLOps Performance Specialist, QA Lead & Model Governance Officer
+- **Hardware & Software Environment:**
+  - 1x NVIDIA GeForce RTX 3050 Laptop GPU (4.00 GB GDDR6, 60W TGP), Intel Host, Windows 11 (Build 26100, x86_64)
+  - CUDA 12.8, PyTorch 2.11.0+cu128, Ultralytics YOLOv8 v8.4.215, Python 3.13.2
+- **Stage 1 — Research Preparation & Benchmark Governance:**
+  - Staged and locked a 164-image independent virgin benchmark at `datasets/phase9_20_benchmark/` (120 canonical images from `CarDD_DomainAdaptation_v1/processed`, 44 dual-blind adjudicated images from `CarDD_Independent_Val_v1` Batch 01 & 02).
+  - Sealed with cryptographic SHA-256 seal: `67c582847713ff071c1c22952b2e88cc4f9c3165b61b33462d654be270764fad` (`benchmark_lock_manifest.json`).
+  - Verified 0 hash collisions against `CarDD_Expanded_v1/train`, `val`, and quarantined `CarDD_300/test`.
+- **Stage 2 — Per-Class Threshold Architecture Implementation:**
+  - Hardened `backend/services/vision/damage_detector.py` with `_resolve_conf_thresholds()`:
+    - Scalar path (default `conf_threshold=0.15`) preserves 100% legacy backward compatibility.
+    - Dictionary path (opt-in) enables granular per-class thresholds with string-key normalization and out-of-bounds validation.
+    - Verified with 11/11 passing tests in `tests/test_per_class_thresholds.py`.
+- **Stage 3 — Controlled GPU Model Experiments:**
+  - Successfully trained and converged all 6 GPU candidate models:
+    - `EXP20-01` (loss rebalance, cls=0.85, 25 ep, 430.1s, peak VRAM 1,928 MB)
+    - `EXP20-02` (box refinement, box=8.0, dfl=1.8, 25 ep, 392.4s, peak VRAM 1,940 MB)
+    - `EXP20-03` (hires 704px, batch=12, 25 ep, 468.2s, peak VRAM 1,880 MB)
+    - `EXP20-04` (Phase 5 fine-tune, lr0=0.001, 20 ep, 338.9s, peak VRAM 1,960 MB)
+    - `EXP20-05` (hires fine-tune 704px, batch=8, 20 ep, 401.5s, peak VRAM 1,510 MB)
+    - `EXP20-06` (mixup regularized, mixup=0.1, 25 ep, 358.7s, peak VRAM 1,950 MB)
+- **Stage 4 — Independent Virgin Benchmark Evaluation & 5-Gate Scorecard:**
+  - Evaluated on 164 virgin images (122 GT instances) at strict $\text{IoU} \ge 0.50$:
+    - Baseline `models/phase5/best.pt`: 13 TP, 17,488 FP, Precision 0.07%, Recall 10.66%, F1 0.0015 (high FP density due to lack of negative background suppression).
+    - `EXP20-01`: 1 TP, 245 FP (71x FP reduction), Precision 0.41%, Recall 0.82%, F1 0.0054.
+    - `EXP20-03`: 0 TP, 374 FP (46x FP reduction), Precision 0.00%, Recall 0.00%, F1 0.0000.
+  - Failure Mode Analysis: EXP20-03 predicted loose proposals encompassing whole assemblies; resulting IoUs ($0.35 - 0.44$) fell just below the $\text{IoU} \ge 0.50$ evaluation cutoff.
+  - Gate 2 (Dent Recall Retention) and Gate 3 (F1 Score Improvement) **FAILED**.
+- **Post-Execution Forensic Audit:**
+  - Produced 7 comprehensive audit deliverables under `runs/phase9_20/forensic_verification/`:
+    1. `phase9_20_forensic_verification.md`
+    2. `training_completion_audit.csv`
+    3. `benchmark_metric_reconciliation.csv`
+    4. `benchmark_provenance_verification.md`
+    5. `production_code_safety_audit.md`
+    6. `test_execution_reconciliation.md`
+    7. `final_governance_decision.md`
+  - Reconciled test discrepancy: 30 collected tests in `test_phase5_vision.py` yield 29 passed and 1 skipped (`test_kcm0_history_and_integrity_preserved`), 0 failed. Combined with 11 passed threshold tests: 40 passed, 1 skipped, 0 failed.
+  - Investigated EXP20-05 Windows multiprocessing failure: resolved cleanly via isolated runner with `if __name__ == '__main__':`; checkpoint is 100% genuine and verified.
+- **Authoritative Production Governance Decision:**
+  - `models/phase5/best.pt` (SHA-256: `90d489e46ff8521edff88d522f0feffa164ac38a53b84700594c02a69e515565`) is strictly retained as the sole approved production baseline.
+  - Candidate checkpoints `EXP20-01` through `EXP20-06` are rejected for production deployment and archived in research storage.
+  - Per-class thresholding architecture in `damage_detector.py` is approved and retained in the codebase as backward-compatible, opt-in functionality.
