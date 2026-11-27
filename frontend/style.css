@@ -5011,3 +5011,268 @@ button.btn-sidebar-collapse:hover,
         min-width: unset;
     }
 }
+
+/* ==========================================================================
+   Final Claim Verdict Panel & Decision Badges
+   ========================================================================== */
+.result-card-badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.final-verdict-card {
+    background: var(--bg-card-subtle, #0f172a);
+    border: 1px solid var(--border, #334155);
+    border-left: 5px solid #64748b;
+    border-radius: var(--radius-md, 10px);
+    padding: 16px 18px;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.final-verdict-card.verdict-accepted {
+    border-left-color: #16a34a;
+    border-color: rgba(22, 163, 74, 0.35);
+    background: rgba(22, 163, 74, 0.08);
+}
+
+.final-verdict-card.verdict-not-accepted {
+    border-left-color: #dc2626;
+    border-color: rgba(220, 38, 38, 0.38);
+    background: rgba(220, 38, 38, 0.08);
+}
+
+.final-verdict-card.verdict-manual-review {
+    border-left-color: #d97706;
+    border-color: rgba(217, 119, 6, 0.4);
+    background: rgba(217, 119, 6, 0.09);
+}
+
+.final-verdict-card.verdict-pending {
+    border-left-color: #64748b;
+    background: rgba(148, 163, 184, 0.08);
+}
+
+.verdict-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.verdict-eyebrow {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+.verdict-headline {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.verdict-badges-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.verdict-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+}
+
+.verdict-badge-accepted {
+    background-color: rgba(22, 163, 74, 0.16);
+    color: #15803d;
+    border-color: rgba(22, 163, 74, 0.4);
+}
+
+[data-theme="dark"] .verdict-badge-accepted {
+    color: #4ade80;
+}
+
+.verdict-badge-not-accepted {
+    background-color: rgba(220, 38, 38, 0.16);
+    color: #b91c1c;
+    border-color: rgba(220, 38, 38, 0.4);
+}
+
+[data-theme="dark"] .verdict-badge-not-accepted {
+    color: #f87171;
+}
+
+.verdict-badge-manual-review {
+    background-color: rgba(217, 119, 6, 0.18);
+    color: #b45309;
+    border-color: rgba(217, 119, 6, 0.45);
+}
+
+[data-theme="dark"] .verdict-badge-manual-review {
+    color: #fbbf24;
+}
+
+.verdict-badge-pending {
+    background-color: rgba(148, 163, 184, 0.16);
+    color: #64748b;
+    border-color: rgba(148, 163, 184, 0.35);
+}
+
+.risk-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+
+.risk-badge-low {
+    background-color: rgba(16, 185, 129, 0.12);
+    color: #059669;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.risk-badge-medium {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #d97706;
+    border-color: rgba(245, 158, 11, 0.35);
+}
+
+.risk-badge-high {
+    background-color: rgba(239, 68, 68, 0.16);
+    color: #dc2626;
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+[data-theme="dark"] .risk-badge-low { color: #34d399; }
+[data-theme="dark"] .risk-badge-medium { color: #fbbf24; }
+[data-theme="dark"] .risk-badge-high { color: #f87171; }
+
+.risk-badge-neutral {
+    background-color: rgba(148, 163, 184, 0.12);
+    color: var(--text-muted);
+    border-color: rgba(148, 163, 184, 0.3);
+}
+
+.verdict-reason-box {
+    margin-bottom: 10px;
+}
+
+.verdict-section-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.verdict-reason-text {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+.verdict-summary-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.verdict-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--bg-card, #1e293b);
+    border: 1px solid var(--border, #334155);
+    color: var(--text-secondary);
+}
+
+.verdict-checks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.verdict-check-box {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border, #334155);
+    background: rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="dark"] .verdict-check-box {
+    background: rgba(15, 23, 42, 0.45);
+}
+
+.verdict-check-passed {
+    border-color: rgba(22, 163, 74, 0.35);
+}
+
+.verdict-check-failed {
+    border-color: rgba(220, 38, 38, 0.35);
+}
+
+.verdict-check-inconclusive {
+    border-color: rgba(217, 119, 6, 0.35);
+}
+
+.verdict-check-title {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+}
+
+.verdict-check-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: var(--text-secondary);
+}
+
+.verdict-remarks-box {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(217, 119, 6, 0.14);
+    border: 1px solid rgba(217, 119, 6, 0.38);
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.verdict-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}

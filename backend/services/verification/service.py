@@ -14,10 +14,12 @@ from backend.database.models import (
     ClaimNLPAnalysis,
     ClaimVerificationRun,
     ExtractedInformation,
+    RiskAssessment,
     VehicleDamageAnalysis,
     VerificationFinding,
 )
 from backend.services.nlp import ClaimNLPService
+from backend.services.risk import FraudRiskAssessor
 from backend.services.verification.damage_comparator import (
     compare_invoice_vs_damage,
     compare_narrative_vs_vision,
@@ -50,6 +52,7 @@ from backend.services.verification.rules import (
     STATUS_NOT_PRESENT,
 )
 from backend.services.verification.scoring import compute_verification_score_and_summary
+from backend.services.verification.verdict import FinalVerdictEngine
 from backend.utils.logger import setup_logger
 
 logger = setup_logger("claimsense.verification")
@@ -584,11 +587,16 @@ class ClaimVerificationService:
                         retryable=False,
                     )
 
-                # Idempotency check: reuse existing run if force is False
-                if not force and claim.verification_runs:
+                # Idempotency check: reuse existing run if force is False and verdict is already persisted
+                if not force and claim.verification_runs and claim.final_verdict:
                     latest_run = sorted(claim.verification_runs, key=lambda r: r.id)[-1]
                     logger.info(f"Reusing existing verification run ID {latest_run.id} for {claim_id}")
-                    return latest_run.to_dict(include_findings=True)
+                    run_payload = latest_run.to_dict(include_findings=True)
+                    run_payload["final_verdict"] = claim.get_final_verdict_dict()
+                    if claim.risk_assessments:
+                        latest_risk = sorted(claim.risk_assessments, key=lambda r: r.id)[-1]
+                        run_payload["risk_assessment"] = latest_risk.to_dict()
+                    return run_payload
 
                 claim_record = claim.to_dict(include_evidence=True)
 
@@ -696,12 +704,57 @@ class ClaimVerificationService:
                     )
                     db.add(finding)
 
+                # Stage 7: Deterministic Fraud-Risk Assessment & Final Claim Verdict
+                risk_result = FraudRiskAssessor.assess(
+                    findings=result.get("findings", []),
+                    summary_metrics=result,
+                    vision_analysis=vision_analysis,
+                    extracted_doc_rows=extracted_doc_rows,
+                )
+                risk_record = RiskAssessment(
+                    claim_id=claim_id,
+                    risk_level=risk_result["risk_level"],
+                    risk_score=risk_result["risk_score"],
+                    reasons=json.dumps(risk_result.get("reasons", [])),
+                    created_at=now_utc,
+                )
+                db.add(risk_record)
+
+                verdict_result = FinalVerdictEngine.evaluate(
+                    verification_result=result,
+                    risk_assessment=risk_result,
+                    claim_record=claim_record,
+                    extracted_doc_rows=extracted_doc_rows,
+                    vision_analysis=vision_analysis,
+                    nlp_analysis=nlp_analysis,
+                )
+
+                claim.final_verdict = verdict_result["final_verdict"]
+                claim.decision_reason = verdict_result["decision_reason"]
+                claim.fraud_risk_level = verdict_result["fraud_risk_level"]
+                claim.decision_timestamp = now_utc
+                claim.verdict_details = json.dumps({
+                    "fraud_risk_score": verdict_result.get("fraud_risk_score"),
+                    "verification_summary": verdict_result.get("verification_summary", {}),
+                    "passed_checks": verdict_result.get("passed_checks", []),
+                    "failed_checks": verdict_result.get("failed_checks", []),
+                    "inconclusive_checks": verdict_result.get("inconclusive_checks", []),
+                    "manual_review_required": verdict_result.get("manual_review_required", False),
+                    "manual_review_remarks": verdict_result.get("manual_review_remarks", []),
+                    "risk_reasons": verdict_result.get("risk_reasons", []),
+                    "decision_timestamp": verdict_result.get("decision_timestamp"),
+                })
+
                 db.commit()
                 logger.info(
                     f"Successfully completed Phase 7 Cross-Source Verification for {claim_id}: "
-                    f"Status={run.overall_status}, Score={run.consistency_score}%, {len(result['findings'])} findings"
+                    f"Status={run.overall_status}, Score={run.consistency_score}%, "
+                    f"{len(result['findings'])} findings, Verdict={claim.final_verdict} (Risk={claim.fraud_risk_level})"
                 )
-                return run.to_dict(include_findings=True)
+                run_payload = run.to_dict(include_findings=True)
+                run_payload["risk_assessment"] = risk_record.to_dict()
+                run_payload["final_verdict"] = claim.get_final_verdict_dict()
+                return run_payload
 
         except VerificationPipelineError:
             raise
@@ -719,3 +772,17 @@ class ClaimVerificationService:
                 original_exc=exc,
                 retryable=True,
             ) from exc
+
+    @classmethod
+    def evaluate_and_persist_verdict(cls, claim_id: str, force: bool = False) -> Dict[str, Any]:
+        """Ensures cross-source verification, risk assessment, and final verdict are computed and persisted."""
+        verif_result = cls.verify_claim(claim_id=claim_id, force=force)
+        if not verif_result.get("final_verdict"):
+            # Legacy run existed without persisted final_verdict: re-evaluate cleanly with force=True
+            verif_result = cls.verify_claim(claim_id=claim_id, force=True)
+        verdict_dict = verif_result.get("final_verdict")
+        return {
+            "verdict": verdict_dict,
+            "final_verdict": verdict_dict.get("final_verdict") if isinstance(verdict_dict, dict) else None,
+            "verification": verif_result,
+        }

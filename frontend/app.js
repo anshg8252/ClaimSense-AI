@@ -1907,6 +1907,16 @@ function initClaimSenseApp() {
                 <span class="meta-val">${claim.incident_location ? escapeHtml(claim.incident_location) : '<span style="color: var(--text-muted); font-weight: normal;">Not specified</span>'}</span>
             </div>`;
 
+        const rawVerdictCode = (claim.final_verdict || (claim.verdict && claim.verdict.final_verdict) || "").toUpperCase();
+        let cardVerdictBadge = "";
+        if (rawVerdictCode === "ACCEPTED") {
+            cardVerdictBadge = `<span class="verdict-badge verdict-badge-accepted" title="Final Claim Verdict">ACCEPTED</span>`;
+        } else if (rawVerdictCode === "NOT_ACCEPTED") {
+            cardVerdictBadge = `<span class="verdict-badge verdict-badge-not-accepted" title="Final Claim Verdict">NOT ACCEPTED</span>`;
+        } else if (rawVerdictCode === "MANUAL_REVIEW") {
+            cardVerdictBadge = `<span class="verdict-badge verdict-badge-manual-review" title="Final Claim Verdict">MANUAL REVIEW</span>`;
+        }
+
         return `
             <div class="claim-result-card" data-claim-id="${escapeHtml(claim.claim_id)}">
                 <div class="result-card-header">
@@ -1916,10 +1926,13 @@ function initClaimSenseApp() {
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                         </button>
                     </div>
-                    <span class="status-pill status-ready">
-                        <span class="status-dot"></span>
-                        ${escapeHtml(claim.status || "SUBMITTED")}
-                    </span>
+                    <div class="result-card-badges">
+                        ${cardVerdictBadge}
+                        <span class="status-pill status-ready">
+                            <span class="status-dot"></span>
+                            ${escapeHtml(claim.status || "SUBMITTED")}
+                        </span>
+                    </div>
                 </div>
                 <div class="result-details-grid">
                     <div class="meta-item">
@@ -2360,7 +2373,7 @@ function initClaimSenseApp() {
         const btnReceipt = document.getElementById("btn-modal-receipt");
         const btnReport = document.getElementById("btn-modal-report");
         if (btnReceipt) btnReceipt.href = `/api/claims/${claimId}/receipt`;
-        if (btnReport) btnReport.href = `/api/claims/${claimId}/document-report`;
+        if (btnReport) btnReport.href = `/api/claims/${claimId}/document-report?t=${Date.now()}`;
 
         const extractedSection = document.getElementById("modal-extracted-section");
         const extractedRows = document.getElementById("modal-extracted-rows");
@@ -2945,6 +2958,189 @@ function initClaimSenseApp() {
             }
 
             // =========================================================
+            // FINAL CLAIM VERDICT / DECISION ENGINE PANEL
+            // =========================================================
+            const finalVerdictPanel = document.getElementById("final-verdict-panel");
+            const modalHeaderVerdictBadge = document.getElementById("modal-header-verdict-badge");
+            const verdictHeadlineText = document.getElementById("verdict-headline-text");
+            const verdictStatusBadge = document.getElementById("verdict-status-badge");
+            const verdictRiskBadge = document.getElementById("verdict-risk-badge");
+            const verdictDecisionReason = document.getElementById("verdict-decision-reason");
+            const verdictSummaryChips = document.getElementById("verdict-summary-chips");
+            const verdictChecksGrid = document.getElementById("verdict-checks-grid");
+            const verdictPassedContainer = document.getElementById("verdict-passed-container");
+            const verdictPassedList = document.getElementById("verdict-passed-list");
+            const verdictFailedContainer = document.getElementById("verdict-failed-container");
+            const verdictFailedList = document.getElementById("verdict-failed-list");
+            const verdictInconclusiveContainer = document.getElementById("verdict-inconclusive-container");
+            const verdictInconclusiveList = document.getElementById("verdict-inconclusive-list");
+            const verdictRemarksBox = document.getElementById("verdict-remarks-box");
+            const verdictRemarksText = document.getElementById("verdict-remarks-text");
+            const verdictTimestampEl = document.getElementById("verdict-timestamp");
+
+            function renderFinalVerdict(verdictData) {
+                if (!finalVerdictPanel) return;
+
+                if (!verdictData || !verdictData.final_verdict) {
+                    finalVerdictPanel.className = "final-verdict-card verdict-pending mt-3 mb-3";
+                    if (modalHeaderVerdictBadge) {
+                        modalHeaderVerdictBadge.className = "verdict-badge verdict-badge-pending";
+                        modalHeaderVerdictBadge.textContent = "VERDICT: PENDING";
+                    }
+                    if (verdictHeadlineText) verdictHeadlineText.textContent = "Awaiting Decision Evaluation";
+                    if (verdictStatusBadge) {
+                        verdictStatusBadge.className = "verdict-badge verdict-badge-pending";
+                        verdictStatusBadge.textContent = "PENDING";
+                    }
+                    if (verdictRiskBadge) {
+                        verdictRiskBadge.className = "risk-badge risk-badge-neutral";
+                        verdictRiskBadge.textContent = "RISK: N/A";
+                    }
+                    if (verdictDecisionReason) {
+                        verdictDecisionReason.textContent = "No final decision verdict has been recorded for this claim yet. Scroll to Phase 7 and click Run Verification to evaluate multi-source evidence and fraud risk.";
+                    }
+                    if (verdictSummaryChips) {
+                        verdictSummaryChips.innerHTML = "";
+                        verdictSummaryChips.style.display = "none";
+                    }
+                    if (verdictChecksGrid) verdictChecksGrid.style.display = "none";
+                    if (verdictPassedContainer) verdictPassedContainer.style.display = "none";
+                    if (verdictFailedContainer) verdictFailedContainer.style.display = "none";
+                    if (verdictInconclusiveContainer) verdictInconclusiveContainer.style.display = "none";
+                    if (verdictRemarksBox) verdictRemarksBox.style.display = "none";
+                    if (verdictTimestampEl) verdictTimestampEl.textContent = "Not evaluated";
+                    return;
+                }
+
+                const fv = String(verdictData.final_verdict).toUpperCase();
+                let panelStateClass = "verdict-manual-review";
+                let badgeStateClass = "verdict-badge-manual-review";
+                let headlineLabel = "Manual Assessor Review Required";
+                let badgeText = fv.replace(/_/g, " ");
+
+                if (fv === "ACCEPTED") {
+                    panelStateClass = "verdict-accepted";
+                    badgeStateClass = "verdict-badge-accepted";
+                    headlineLabel = "Claim Recommended for Acceptance";
+                    badgeText = "ACCEPTED";
+                } else if (fv === "NOT_ACCEPTED") {
+                    panelStateClass = "verdict-not-accepted";
+                    badgeStateClass = "verdict-badge-not-accepted";
+                    headlineLabel = "Claim Not Accepted (Critical Discrepancies)";
+                    badgeText = "NOT ACCEPTED";
+                } else {
+                    panelStateClass = "verdict-manual-review";
+                    badgeStateClass = "verdict-badge-manual-review";
+                    headlineLabel = "Manual Assessor Review Required";
+                    badgeText = "MANUAL REVIEW";
+                }
+
+                finalVerdictPanel.className = `final-verdict-card ${panelStateClass} mt-3 mb-3`;
+                if (modalHeaderVerdictBadge) {
+                    modalHeaderVerdictBadge.className = `verdict-badge ${badgeStateClass}`;
+                    modalHeaderVerdictBadge.textContent = `VERDICT: ${badgeText}`;
+                }
+                if (verdictHeadlineText) verdictHeadlineText.textContent = headlineLabel;
+                if (verdictStatusBadge) {
+                    verdictStatusBadge.className = `verdict-badge ${badgeStateClass}`;
+                    verdictStatusBadge.textContent = badgeText;
+                }
+
+                const riskLevel = String(verdictData.fraud_risk_level || "N/A").toUpperCase();
+                const riskScore = verdictData.fraud_risk_score != null ? ` (${Number(verdictData.fraud_risk_score).toFixed(0)}/100)` : "";
+                let riskClass = "risk-badge-neutral";
+                if (riskLevel === "LOW") riskClass = "risk-badge-low";
+                else if (riskLevel === "MEDIUM") riskClass = "risk-badge-medium";
+                else if (riskLevel === "HIGH" || riskLevel === "CRITICAL") riskClass = "risk-badge-high";
+
+                if (verdictRiskBadge) {
+                    verdictRiskBadge.className = `risk-badge ${riskClass}`;
+                    verdictRiskBadge.textContent = `FRAUD RISK: ${riskLevel}${riskScore}`;
+                }
+
+                if (verdictDecisionReason) {
+                    verdictDecisionReason.textContent = verdictData.decision_reason || "Decision recorded.";
+                }
+
+                const vs = verdictData.verification_summary || {};
+                if (verdictSummaryChips) {
+                    const chips = [
+                        `Score: ${vs.consistency_score != null ? Number(vs.consistency_score).toFixed(1) + "%" : "N/A"}`,
+                        `Checks: ${vs.total_comparisons ?? 0}`,
+                        `Passed: ${vs.matched_comparisons ?? (verdictData.passed_checks ? verdictData.passed_checks.length : 0)}`,
+                        `Failed: ${(verdictData.failed_checks && verdictData.failed_checks.length) || vs.mismatched_comparisons || 0}`,
+                        `Inconclusive: ${(verdictData.inconclusive_checks && verdictData.inconclusive_checks.length) || ((vs.inconclusive_count || 0) + (vs.missing_evidence_count || 0))}`,
+                    ];
+                    verdictSummaryChips.innerHTML = chips.map(c => `<span class="verdict-chip">${escapeHtml(c)}</span>`).join("");
+                    verdictSummaryChips.style.display = "flex";
+                }
+
+                const formatCheckItem = (item) => {
+                    if (item && typeof item === "object") {
+                        const name = item.check || item.field_name || "Verification Check";
+                        const detail = item.detail || item.explanation || "";
+                        return detail ? `${name}: ${detail}` : name;
+                    }
+                    return String(item || "");
+                };
+
+                const passedList = Array.isArray(verdictData.passed_checks) ? verdictData.passed_checks : [];
+                const failedList = Array.isArray(verdictData.failed_checks) ? verdictData.failed_checks : [];
+                const inconclusiveList = Array.isArray(verdictData.inconclusive_checks) ? verdictData.inconclusive_checks : [];
+
+                if (verdictPassedList) {
+                    verdictPassedList.innerHTML = passedList.slice(0, 8).map(item => `<li>${escapeHtml(formatCheckItem(item))}</li>`).join("");
+                }
+                if (verdictPassedContainer) {
+                    verdictPassedContainer.style.display = passedList.length > 0 ? "block" : "none";
+                }
+
+                if (verdictFailedList) {
+                    verdictFailedList.innerHTML = failedList.map(item => `<li>${escapeHtml(formatCheckItem(item))}</li>`).join("");
+                }
+                if (verdictFailedContainer) {
+                    verdictFailedContainer.style.display = failedList.length > 0 ? "block" : "none";
+                }
+
+                if (verdictInconclusiveList) {
+                    verdictInconclusiveList.innerHTML = inconclusiveList.map(item => `<li>${escapeHtml(formatCheckItem(item))}</li>`).join("");
+                }
+                if (verdictInconclusiveContainer) {
+                    verdictInconclusiveContainer.style.display = inconclusiveList.length > 0 ? "block" : "none";
+                }
+
+                if (verdictChecksGrid) {
+                    verdictChecksGrid.style.display = (passedList.length > 0 || failedList.length > 0 || inconclusiveList.length > 0) ? "grid" : "none";
+                }
+
+                const rawRemarks = verdictData.manual_review_remarks;
+                const remarksText = Array.isArray(rawRemarks)
+                    ? rawRemarks.filter(Boolean).join(" • ")
+                    : (rawRemarks ? String(rawRemarks) : "");
+                if (verdictRemarksBox && verdictRemarksText) {
+                    if (remarksText) {
+                        verdictRemarksText.textContent = remarksText;
+                        verdictRemarksBox.style.display = "block";
+                    } else {
+                        verdictRemarksBox.style.display = "none";
+                    }
+                }
+
+                if (verdictTimestampEl) {
+                    if (verdictData.decision_timestamp) {
+                        let tsText = String(verdictData.decision_timestamp);
+                        try {
+                            const parsed = new Date(verdictData.decision_timestamp);
+                            if (!isNaN(parsed.getTime())) tsText = parsed.toLocaleString();
+                        } catch (_) {}
+                        verdictTimestampEl.textContent = `Evaluated at ${tsText}`;
+                    } else {
+                        verdictTimestampEl.textContent = "Evaluated";
+                    }
+                }
+            }
+
+            // =========================================================
             // PHASE 7: Cross-Source Verification Logic
             // =========================================================
             const btnRunVerification = document.getElementById("btn-run-verification");
@@ -2960,6 +3156,9 @@ function initClaimSenseApp() {
             const verifRecommendationsList = document.getElementById("verif-recommendations-list");
 
             function displayVerificationResults(verif) {
+                if (verif && verif.final_verdict) {
+                    renderFinalVerdict(verif.final_verdict);
+                }
                 if (!verif || (verif.total_comparisons === undefined && !verif.findings)) {
                     if (verifPendingBanner) {
                         verifPendingBanner.className = "damage-banner banner-info mt-2";
@@ -3114,6 +3313,9 @@ function initClaimSenseApp() {
                             throw errObj;
                         }
                         displayVerificationResults(vData.verification);
+                        renderFinalVerdict(vData.verdict || (vData.verification && vData.verification.final_verdict) || null);
+                        if (btnReport) btnReport.href = `/api/claims/${claimId}/document-report?t=${Date.now()}`;
+                        if (typeof loadMyClaims === "function") loadMyClaims();
                     } catch (err) {
                         if (verifPendingBanner) {
                             verifPendingBanner.className = "damage-banner banner-danger mt-2";
@@ -3128,16 +3330,58 @@ function initClaimSenseApp() {
                 };
             }
 
-            // Initial load of verification data
+            // Initial load of verification & final verdict data
+            let resolvedVerdict = claim.verdict || null;
+            renderFinalVerdict(resolvedVerdict);
             if (claim.verification) {
                 displayVerificationResults(claim.verification);
+                if (!resolvedVerdict) {
+                    try {
+                        let token = getCsrfToken();
+                        if (!token) token = await fetchCsrfToken();
+                        const hdrs = { "Content-Type": "application/json" };
+                        if (token) { hdrs["X-CSRFToken"] = token; hdrs["X-CSRF-Token"] = token; }
+                        const fvPost = await fetch(`/api/claims/${claimId}/verdict`, {
+                            method: "POST",
+                            headers: hdrs,
+                            body: JSON.stringify({ force: false })
+                        });
+                        if (fvPost.ok) {
+                            const fvJson = await fvPost.json();
+                            if (fvJson.verdict) {
+                                resolvedVerdict = fvJson.verdict;
+                                renderFinalVerdict(resolvedVerdict);
+                            }
+                        }
+                    } catch {}
+                }
             } else {
                 try {
                     const vGet = await fetch(`/api/claims/${claimId}/verification`);
                     if (vGet.ok) {
                         const vJson = await vGet.json();
+                        const fetchedVerdict = vJson.verdict || (vJson.verification && vJson.verification.final_verdict) || null;
+                        if (fetchedVerdict) {
+                            resolvedVerdict = fetchedVerdict;
+                            renderFinalVerdict(resolvedVerdict);
+                        }
                         if (vJson.verified && vJson.verification) {
                             displayVerificationResults(vJson.verification);
+                            if (!resolvedVerdict) {
+                                let token = getCsrfToken();
+                                if (!token) token = await fetchCsrfToken();
+                                const hdrs = { "Content-Type": "application/json" };
+                                if (token) { hdrs["X-CSRFToken"] = token; hdrs["X-CSRF-Token"] = token; }
+                                const fvPost = await fetch(`/api/claims/${claimId}/verdict`, {
+                                    method: "POST",
+                                    headers: hdrs,
+                                    body: JSON.stringify({ force: false })
+                                });
+                                if (fvPost.ok) {
+                                    const fvJson = await fvPost.json();
+                                    if (fvJson.verdict) renderFinalVerdict(fvJson.verdict);
+                                }
+                            }
                         } else {
                             displayVerificationResults(null);
                         }

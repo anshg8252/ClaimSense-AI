@@ -76,6 +76,11 @@ class Claim(Base):
     incident_location = Column(String(256), nullable=True)
     claim_description = Column(Text, nullable=False)
     status = Column(String(32), default="SUBMITTED", nullable=False)
+    final_verdict = Column(String(32), nullable=True, index=True)  # ACCEPTED, NOT_ACCEPTED, MANUAL_REVIEW
+    decision_reason = Column(Text, nullable=True)
+    fraud_risk_level = Column(String(32), nullable=True)  # LOW, MEDIUM, HIGH
+    decision_timestamp = Column(DateTime, nullable=True)
+    verdict_details = Column(Text, nullable=True)  # JSON payload with checks & verification summary
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(
         DateTime,
@@ -98,8 +103,38 @@ class Claim(Base):
     risk_assessments = relationship("RiskAssessment", back_populates="claim", cascade="all, delete-orphan", lazy="select")
     reports = relationship("Report", back_populates="claim", cascade="all, delete-orphan", lazy="select")
 
+    def get_final_verdict_dict(self) -> Optional[Dict[str, Any]]:
+        """Returns structured Final Claim Verdict payload if persisted, else None."""
+        if not self.final_verdict:
+            return None
+        details: Dict[str, Any] = {}
+        if self.verdict_details:
+            try:
+                details = json.loads(self.verdict_details)
+            except Exception:
+                details = {}
+        return {
+            "final_verdict": self.final_verdict,
+            "decision_reason": self.decision_reason,
+            "fraud_risk_level": self.fraud_risk_level or details.get("fraud_risk_level") or "MEDIUM",
+            "fraud_risk_score": details.get("fraud_risk_score"),
+            "verification_summary": details.get("verification_summary", {}),
+            "passed_checks": details.get("passed_checks", []),
+            "failed_checks": details.get("failed_checks", []),
+            "inconclusive_checks": details.get("inconclusive_checks", []),
+            "manual_review_required": details.get("manual_review_required", self.final_verdict == "MANUAL_REVIEW"),
+            "manual_review_remarks": details.get("manual_review_remarks", []),
+            "risk_reasons": details.get("risk_reasons", []),
+            "decision_timestamp": (
+                self.decision_timestamp.isoformat()
+                if self.decision_timestamp
+                else details.get("decision_timestamp")
+            ),
+        }
+
     def to_dict(self, include_evidence: bool = True) -> Dict[str, Any]:
         """Serializes claim entity to dictionary representation."""
+        verdict_obj = self.get_final_verdict_dict()
         data = {
             "claim_id": self.claim_id,
             "user_id": self.user_id,
@@ -110,6 +145,11 @@ class Claim(Base):
             "incident_location": self.incident_location,
             "claim_description": self.claim_description,
             "status": self.status,
+            "final_verdict": self.final_verdict,
+            "decision_reason": self.decision_reason,
+            "fraud_risk_level": self.fraud_risk_level,
+            "decision_timestamp": self.decision_timestamp.isoformat() if self.decision_timestamp else None,
+            "verdict": verdict_obj,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
@@ -162,7 +202,10 @@ class Claim(Base):
 
             if self.verification_runs:
                 latest_verif = sorted(self.verification_runs, key=lambda r: r.id)[-1]
-                data["verification"] = latest_verif.to_dict(include_findings=True)
+                verif_dict = latest_verif.to_dict(include_findings=True)
+                if verdict_obj and "final_verdict" not in verif_dict:
+                    verif_dict["final_verdict"] = verdict_obj
+                data["verification"] = verif_dict
             else:
                 data["verification"] = None
 

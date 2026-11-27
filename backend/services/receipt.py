@@ -1580,6 +1580,7 @@ def generate_document_intelligence_report_pdf(
         cov_str = f" &bull; Coverage: {cov_pct:.1f}%" if cov_pct is not None else ""
         inconcl_cnt = verif_data.get("inconclusive_count", 0)
 
+        verdict_obj = verif_data.get("final_verdict") or claim_dict.get("verdict")
         verif_summary_rows = [
             [Paragraph("<b>Overall Assessment</b>", table_header_style), Paragraph(f"<b>{overall_st}</b>", st_badge)],
             [Paragraph("<b>Consistency Score</b>", table_header_style), Paragraph(f"<b>{score:.1f}%</b> (Empirically Weighted{cov_str})", meta_val)],
@@ -1632,9 +1633,133 @@ def generate_document_intelligence_report_pdf(
             story.append(Paragraph(rec_text, meta_val))
 
         story.append(PageBreak())
-        final_page_num = "Page 8"
+        next_page_idx = 8
     else:
-        final_page_num = "Page 7"
+        verdict_obj = claim_dict.get("verdict")
+        next_page_idx = 7
+
+    # =========================================================================
+    # Dedicated Final Claim Verdict and Decision Summary Page
+    # Rendered whenever the claim has an evaluated Final Claim Verdict.
+    # =========================================================================
+    if isinstance(verdict_obj, dict) and verdict_obj.get("final_verdict"):
+        fv_code = str(verdict_obj.get("final_verdict", "")).upper()
+        fv_label = fv_code.replace("_", " ")
+        fv_color = "#16a34a" if fv_code == "ACCEPTED" else "#dc2626" if fv_code == "NOT_ACCEPTED" else "#d97706"
+        fv_bg = "#dcfce7" if fv_code == "ACCEPTED" else "#fee2e2" if fv_code == "NOT_ACCEPTED" else "#fef3c7"
+        fv_border = "#86efac" if fv_code == "ACCEPTED" else "#fca5a5" if fv_code == "NOT_ACCEPTED" else "#fcd34d"
+
+        fv_risk = str(verdict_obj.get("fraud_risk_level") or "N/A").upper()
+        fv_score = verdict_obj.get("fraud_risk_score")
+        fv_risk_disp = f"{fv_risk} (Score: {float(fv_score):.1f} / 100)" if fv_score is not None else fv_risk
+        fv_reason = safe_xml(verdict_obj.get("decision_reason") or "Decision recorded.")
+        fv_ts = safe_xml(verdict_obj.get("decision_timestamp") or "Recorded")
+
+        story.append(Paragraph(f"Page {next_page_idx}: Final Claim Verdict and Decision Summary", section_heading))
+        story.append(Paragraph("Rule-Based Adjudication Recommendation, Fraud-Risk Scoring & Check Audit", subtitle_style))
+        story.append(Spacer(1, 8))
+
+        fv_banner_style = ParagraphStyle(
+            "VerdictBannerText",
+            parent=meta_val,
+            fontName="Helvetica-Bold",
+            fontSize=12,
+            leading=15,
+            textColor=colors.HexColor(fv_color),
+        )
+        verdict_banner = Table(
+            [[Paragraph(f"FINAL CLAIM VERDICT: {safe_xml(fv_label)} &nbsp;&nbsp;|&nbsp;&nbsp; FRAUD RISK: {safe_xml(fv_risk_disp)}", fv_banner_style)]],
+            colWidths=[540],
+        )
+        verdict_banner.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor(fv_bg)),
+            ("BOX", (0, 0), (-1, -1), 1.2, colors.HexColor(fv_border)),
+            ("TOPPADDING", (0, 0), (-1, -1), 8),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+            ("LEFTPADDING", (0, 0), (-1, -1), 10),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+        ]))
+        story.append(verdict_banner)
+        story.append(Spacer(1, 8))
+
+        vs = verdict_obj.get("verification_summary") or {}
+        summary_stats_line = (
+            f"Overall Cross-Source Status: {safe_xml(vs.get('overall_status', 'N/A'))} &bull; "
+            f"Consistency Score: {vs.get('consistency_score', 'N/A')}% &bull; "
+            f"Evidence Coverage: {vs.get('evidence_coverage_percentage', 'N/A')}% &bull; "
+            f"Comparisons: {vs.get('total_comparisons', 0)} (Matched: {vs.get('matched_comparisons', 0)}, "
+            f"Mismatched: {vs.get('mismatched_comparisons', 0)}, Inconclusive: {vs.get('inconclusive_count', 0)}, "
+            f"Missing: {vs.get('missing_evidence_count', 0)})"
+        )
+        verdict_meta_rows = [
+            [Paragraph("<b>Final Verdict</b>", table_header_style), Paragraph(f"<b>{safe_xml(fv_code)}</b> ({safe_xml(fv_label)})", fv_banner_style)],
+            [Paragraph("<b>Fraud Risk Level &amp; Score</b>", table_header_style), Paragraph(safe_xml(fv_risk_disp), meta_val)],
+            [Paragraph("<b>Decision Reason</b>", table_header_style), Paragraph(fv_reason, meta_val)],
+            [Paragraph("<b>Verification Summary</b>", table_header_style), Paragraph(summary_stats_line, meta_val)],
+            [Paragraph("<b>Decision Timestamp</b>", table_header_style), Paragraph(fv_ts, meta_val)],
+        ]
+        raw_remarks = verdict_obj.get("manual_review_remarks")
+        if isinstance(raw_remarks, list):
+            remarks_text = "; ".join(str(r) for r in raw_remarks if r)
+        else:
+            remarks_text = str(raw_remarks or "")
+        if remarks_text or verdict_obj.get("manual_review_required"):
+            verdict_meta_rows.append([
+                Paragraph("<b>Manual Review Remarks</b>", table_header_style),
+                Paragraph(safe_xml(remarks_text or "Manual human adjuster inspection required."), meta_val),
+            ])
+
+        vmeta_table = Table(verdict_meta_rows, colWidths=[160, 380])
+        vmeta_table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f8fafc")),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+            ("PADDING", (0, 0), (-1, -1), 5),
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ]))
+        story.append(vmeta_table)
+        story.append(Spacer(1, 8))
+
+        def _format_check_rows(title_label: str, items: Any, empty_msg: str, badge_hex: str) -> None:
+            story.append(Paragraph(f"<b>{safe_xml(title_label)}:</b>", meta_label))
+            story.append(Spacer(1, 3))
+            item_list = items if isinstance(items, list) else []
+            if not item_list:
+                story.append(Paragraph(f"<font color='#64748b'>{safe_xml(empty_msg)}</font>", meta_val))
+                story.append(Spacer(1, 5))
+                return
+            rows = [[
+                Paragraph("<b>Verification Check</b>", table_hdr_white),
+                Paragraph("<b>Assessment Detail</b>", table_hdr_white),
+            ]]
+            for entry in item_list[:15]:
+                if isinstance(entry, dict):
+                    chk = safe_xml(entry.get("check") or entry.get("field_name") or "Check")
+                    dtl = safe_xml(entry.get("detail") or entry.get("explanation") or "-")
+                else:
+                    chk = "Check"
+                    dtl = safe_xml(entry)
+                rows.append([
+                    Paragraph(f"<font color='{badge_hex}'><b>{chk}</b></font>", table_cell_style),
+                    Paragraph(dtl, table_cell_style),
+                ])
+            tbl = Table(rows, colWidths=[175, 365], repeatRows=1)
+            tbl.setStyle(TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1e3a8a")),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#cbd5e1")),
+                ("PADDING", (0, 0), (-1, -1), 4),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ]))
+            story.append(tbl)
+            story.append(Spacer(1, 6))
+
+        _format_check_rows("Passed Checks", verdict_obj.get("passed_checks"), "No individual passed checks recorded.", "#15803d")
+        _format_check_rows("Failed Checks", verdict_obj.get("failed_checks"), "None — zero contradictory checks detected.", "#dc2626")
+        _format_check_rows("Inconclusive Checks", verdict_obj.get("inconclusive_checks"), "None — all evaluated evidence is conclusive.", "#d97706")
+
+        story.append(PageBreak())
+        final_page_num = f"Page {next_page_idx + 1}"
+    else:
+        final_page_num = f"Page {next_page_idx}"
 
     error_messages = sorted({str(row.get("error_message") or "").strip() for row in standardized if row.get("error_message")})
     evaluation_notes = sorted({str(row.get("evaluation_metadata") or "").strip() for row in standardized if row.get("evaluation_metadata")})
@@ -2032,7 +2157,56 @@ def generate_claim_receipt_pdf(claim_dict: Dict[str, Any]) -> bytes:
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
     ]))
     story.append(evidence_table)
-    story.append(Spacer(1, 16))
+    story.append(Spacer(1, 12))
+
+    verdict_obj = claim_dict.get("verdict")
+    if isinstance(verdict_obj, dict) and verdict_obj.get("final_verdict"):
+        fv_code = str(verdict_obj.get("final_verdict", "")).upper()
+        fv_label = fv_code.replace("_", " ")
+        fv_risk = str(verdict_obj.get("fraud_risk_level") or "N/A").upper()
+        fv_color = "#16a34a" if fv_code == "ACCEPTED" else "#dc2626" if fv_code == "NOT_ACCEPTED" else "#d97706"
+        fv_bg = "#dcfce7" if fv_code == "ACCEPTED" else "#fee2e2" if fv_code == "NOT_ACCEPTED" else "#fef3c7"
+        fv_border = "#86efac" if fv_code == "ACCEPTED" else "#fca5a5" if fv_code == "NOT_ACCEPTED" else "#fcd34d"
+        fv_badge_style = ParagraphStyle(
+            "ReceiptFinalVerdictBadge",
+            parent=meta_val,
+            fontName="Helvetica-Bold",
+            fontSize=9.5,
+            textColor=colors.HexColor(fv_color),
+        )
+        story.append(Paragraph("3. Final Claim Verdict Decision Summary", section_heading))
+        story.append(Spacer(1, 4))
+        verdict_rows = [
+            [
+                Paragraph("Final Verdict", meta_label),
+                Paragraph(f"<b>{safe_xml(fv_label)}</b> &bull; Fraud Risk: {safe_xml(fv_risk)}", fv_badge_style),
+            ],
+            [
+                Paragraph("Decision Reason", meta_label),
+                Paragraph(safe_xml(verdict_obj.get("decision_reason") or "Decision recorded."), meta_val),
+            ],
+        ]
+        raw_remarks = verdict_obj.get("manual_review_remarks")
+        remarks_str = "; ".join(str(r) for r in raw_remarks if r) if isinstance(raw_remarks, list) else str(raw_remarks or "")
+        if remarks_str:
+            verdict_rows.append([
+                Paragraph("Review Remarks", meta_label),
+                Paragraph(safe_xml(remarks_str), meta_val),
+            ])
+        verdict_table = Table(verdict_rows, colWidths=[150, 390])
+        verdict_table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f8fafc")),
+            ("BACKGROUND", (1, 0), (1, 0), colors.HexColor(fv_bg)),
+            ("BOX", (0, 0), (-1, -1), 0.75, colors.HexColor(fv_border)),
+            ("INNERGRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#e2e8f0")),
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ("LEFTPADDING", (0, 0), (-1, -1), 8),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ]))
+        story.append(verdict_table)
+        story.append(Spacer(1, 12))
 
     # 5. Mandatory Academic & Legal Disclaimer
     disclaimer_text = (

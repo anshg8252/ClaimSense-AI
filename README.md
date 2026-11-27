@@ -108,13 +108,16 @@ flowchart TD
 
     Security --> Pipelines
 
-    subgraph Verification["3. Deterministic Verification Engine (Phase 7)"]
+    subgraph Verification["3. Deterministic Verification & Verdict Engine (Phase 7 + Final Verdict)"]
         direction TB
         FC["Field Comparator\n(Damerau-Levenshtein, OCR Substitution Tolerance, ISO Dates)"]
         DC["Damage Comparator\n(Spatial/Category Clustering, Invoice Overhead Separation)"]
         SC["Scoring & Evidence Coverage Engine\n(Neutral Inconclusive Scoring, Severity Breakdown)"]
+        FRA["FraudRiskAssessor\n(Weighted Risk Score & LOW/MEDIUM/HIGH Banding)"]
+        FVE["FinalVerdictEngine\n(ACCEPTED / NOT_ACCEPTED / MANUAL_REVIEW)"]
         FC --> SC
         DC --> SC
+        SC --> FRA --> FVE
     end
 
     Pipelines --> Verification
@@ -127,8 +130,8 @@ flowchart TD
     Verification --> PROD_DB
 
     subgraph Presentation["5. Assessor Decision Support & Reporting"]
-        UI["Assessor Web Dashboard\n(Responsive Vanilla HTML5 / CSS3 / ES6)"]
-        PDF["Consolidated Audit PDF Report\n(ReportLab 8-Page Formatted Document)"]
+        UI["Assessor Web Dashboard\n(Verdict Panel, Card Badges, Findings Table)"]
+        PDF["Consolidated Verification PDF\n(Dedicated Final Claim Verdict & Decision Summary Page)"]
     end
 
     PROD_DB --> UI
@@ -251,21 +254,125 @@ All Phase 9.20 GPU training and evaluation runs were executed on dedicated hardw
 The repository maintains an automated test battery with test fixtures and defensive execution guards:
 
 ```powershell
+# Run the Final Claim Verdict unit, integration, PDF, and frontend DOM tests
+.\.venv\Scripts\python.exe -m pytest tests/test_final_verdict.py -v
+
 # Run the complete computer vision regression suite
-pytest tests/test_phase5_vision.py -v
+.\.venv\Scripts\python.exe -m pytest tests/test_phase5_vision.py -v
 
 # Run the per-class threshold unit test suite
-pytest tests/test_per_class_thresholds.py -v
+.\.venv\Scripts\python.exe -m pytest tests/test_per_class_thresholds.py -v
 
-# Run both vision suites together
-pytest tests/test_phase5_vision.py tests/test_per_class_thresholds.py -v
+# Run the full repository test suite
+.\.venv\Scripts\python.exe -m pytest tests/ -v
 ```
 
-### Verified Test Outcome
-* `tests/test_phase5_vision.py`: **29 passed, 1 skipped, 0 failed** (51.05s)
-  - *Skipped test note:* `test_kcm0_history_and_integrity_preserved` checks for an ephemeral test claim `CLM-20261116-KCM0` from Phase 5 development; because the clean production database does not contain this transient claim, the test defensively invokes `self.skipTest()`.
-* `tests/test_per_class_thresholds.py`: **11 passed, 0 skipped, 0 failed** (9.86s)
-* **Combined Computer Vision Battery:** **40 passed, 1 skipped, 0 failed (100% of executed tests passing).**
+### Integration Validation Results (`integration/final-claim-verdict`)
+Recorded from the completed Final Claim Verdict integration test execution prior to commit (static historical snapshot of that validation run):
+* **Targeted Integration & Verdict Battery** (`tests/test_final_verdict.py`, `tests/test_ui_redesign.py`, `tests/test_phase7_verification.py`, `tests/test_auth.py`, `tests/test_claims.py`, `tests/test_database.py`): **76 passed, 21 subtests passed, 0 failed**.
+* **Full Regression Suite** (`pytest tests/ -v` on `integration/final-claim-verdict`): **212 passed, 1 skipped, 0 failed**, with **21 subtests passed**.
+* **Earlier Phase 9.20 Vision Reference Runs:**
+  - `tests/test_phase5_vision.py`: **29 passed, 1 skipped, 0 failed** (*skipped:* `test_kcm0_history_and_integrity_preserved` checks for an ephemeral Phase 5 claim ID `CLM-20261116-KCM0` and calls `self.skipTest()` when absent).
+  - `tests/test_per_class_thresholds.py`: **11 passed, 0 skipped, 0 failed**.
+
+---
+
+## ⚖️ Final Claim Verdict & Fraud Risk System
+
+The Final Claim Verdict system operates as the closing stage of ClaimSense AI's verification workflow, converting multi-source verification outputs and fraud-risk indicators into an explainable recommendation for human assessors.
+
+### A. Final Claim Verdict Decision Engine (`FinalVerdictEngine`)
+Implemented in `backend/services/verification/verdict.py`, `FinalVerdictEngine.evaluate()` deterministically classifies each evaluated claim into exactly one of three verdicts:
+
+| Final Verdict | Condition Summary | Manual Review Required |
+| :--- | :--- | :---: |
+| **`ACCEPTED`** | Mandatory documents (`POLICY_DOCUMENT`, `CLAIM_FORM`, `INVOICE`) and vehicle image are present; OCR fields exist for policy, claim form, and invoice with zero extraction errors; YOLOv8 vision analysis completed without `requires_replacement` or OpenCV heuristic fallback; `overall_status == "CONSISTENT"`; `consistency_score >= 80.0%`; `evidence_coverage_percentage >= 70.0%`; `matched_comparisons >= 3`; zero failed or inconclusive checks; and `fraud_risk_level == "LOW"`. | `False` |
+| **`NOT_ACCEPTED`** | At least one critical/high cross-source contradiction (`STATUS_MISMATCH` with `CRITICAL`/`HIGH` severity, or failed critical identity fields such as Policy Number, Policy Coverage Validity, Vehicle Registration, Claimant Name, Accident Date, or Claim Amount) **or** `>= 2` failed checks. Applies **regardless of whether `fraud_risk_level` is `LOW`**. | `False` |
+| **`MANUAL_REVIEW`** | Safe fallback when any required document, vehicle photo, or OCR category is missing/inconclusive; vision failed, fell back to OpenCV, or flagged image authenticity (`requires_replacement`); `consistency_score < 80.0%`, `evidence_coverage_percentage < 70.0%`, or `matched_comparisons < 3`; `overall_status != "CONSISTENT"`; a single non-critical failed check occurs; or `fraud_risk_level` is `MEDIUM` or `HIGH` **without** established hard contradictions (claims are never auto-rejected on risk score alone). | `True` |
+
+### B. Fraud Risk Assessment (`FraudRiskAssessor`)
+Implemented in `backend/services/risk/assessor.py` (`FraudRiskAssessor.assess()`), the risk engine computes a bounded numeric risk score (`0.0`–`100.0`) and persists a `RiskAssessment` row in `risk_assessments` using thresholds from `backend/config.py` / `.env`:
+* **Configured Default Thresholds:** `RISK_THRESHOLD_LOW=30`, `RISK_THRESHOLD_MEDIUM=60`:
+  * `LOW`: `risk_score < 30`
+  * `MEDIUM`: `30 <= risk_score < 60`
+  * `HIGH`: `risk_score >= 60`
+* **Additive Scoring Signals:**
+  * Direct mismatches (`STATUS_MISMATCH`): `+35` (`CRITICAL`), `+20` (`HIGH`), `+12` (other severities)
+  * Potential discrepancies (`STATUS_POTENTIAL_DISCREPANCY`): `+20` (`CRITICAL`/`HIGH`), `+10` (other)
+  * Visual-only detections omitted from claimant narrative: `+5` per finding (capped at `20`)
+  * Claimed damage items not visually confirmed: `+5` per finding (capped at `15`)
+  * Synthetic/invalid vehicle image flagged (`requires_replacement`): `+25`
+  * Ambiguity / missing evidence indicators (`missing_evidence_count > 0`, `inconclusive_count > 0`, `cv_unevaluated_count > 0`): `+5` each (capped at `15`)
+  * Unavailable extraction and comparison inputs (empty OCR rows and findings): `+10`
+
+### C. Database Schema & Backward-Compatible Migrations
+Five nullable verdict columns are added to the `claims` table (`backend/database/models.py`) and applied automatically via idempotent `ALTER TABLE` statements in `_ensure_schema_migrations()` (`backend/database/db.py`):
+* `final_verdict` (`VARCHAR(32)`, indexed) &mdash; `ACCEPTED`, `NOT_ACCEPTED`, `MANUAL_REVIEW`, or `NULL`
+* `decision_reason` (`TEXT`) &mdash; human-readable explanation of the decision and triggering checks
+* `fraud_risk_level` (`VARCHAR(32)`) &mdash; `LOW`, `MEDIUM`, `HIGH`, or `NULL`
+* `decision_timestamp` (`DATETIME`) &mdash; UTC timestamp of the verdict evaluation
+* `verdict_details` (`TEXT`) &mdash; serialized JSON storing `fraud_risk_score`, `verification_summary`, `passed_checks`, `failed_checks`, `inconclusive_checks`, `manual_review_required`, `manual_review_remarks`, `risk_reasons`, and `decision_timestamp`
+
+Legacy claim records with `final_verdict = NULL` remain untouched in SQLite and serialize safely (`"final_verdict": null`, `"verdict": null`) across lookup APIs and PDF generators. When verification runs on an older verified claim without a persisted verdict, `ClaimVerificationService.evaluate_and_persist_verdict()` backfills the verdict non-destructively.
+
+### D. Final Verdict & Verification API Endpoints (`backend/routes/claims.py`)
+
+| Endpoint | Method | Purpose & Payload Notes |
+| :--- | :---: | :--- |
+| `/api/claims/<claim_id>/verdict` | `GET` | Retrieves persisted verdict for authenticated owner/assessor/admin. Returns `success`, `claim_id`, `has_verdict` (`true`/`false`), `final_verdict`, and `verdict` (`null` for legacy unverified claims). |
+| `/api/claims/<claim_id>/verdict` | `POST` | Runs or refreshes verification + fraud risk + verdict evaluation (`{"force": true}` default). Returns `success`, `claim_id`, `has_verdict`, `final_verdict`, `verdict`, and `verification`. |
+| `/api/claims/<claim_id>/verify-cross-source` | `POST` | Runs Phase 7 cross-source verification, `FraudRiskAssessor`, and `FinalVerdictEngine`, persisting all outputs and returning `verification` + `verdict`. |
+| `/api/claims/<claim_id>/verification` | `GET` | Returns latest verification run (`verification`) along with `verdict`. |
+| `/api/claims/<claim_id>/verification/summary` | `GET` | Returns summary verification counters plus `verdict` and `final_verdict`. |
+| `/api/claims` (`?auto_verify=true`) | `POST` | Optional query flag runs immediate verdict evaluation after intake persistence and returns `verdict` and `final_verdict`. |
+| `/api/claims/<claim_id>`, `/api/claims/policy/<policy_number>`, `/api/claims/search`, `/api/my-claims` | `GET` | Serialized claim records include `final_verdict`, `decision_reason`, `fraud_risk_level`, `decision_timestamp`, and structured `verdict`. |
+| `/api/claims/<claim_id>/receipt` (`?format=json` / PDF) | `GET` | JSON receipt includes `final_verdict` (full verdict dict or `null`); PDF receipt renders verdict summary when evaluated. |
+| `/api/claims/<claim_id>/document-report` (alias `/report`) | `GET` | Backfills verdict if `verification_runs` exist without `final_verdict` and serves the Complete Claim Verification PDF with the dedicated verdict page. |
+
+Example `GET /api/claims/<claim_id>/verdict` response:
+```json
+{
+  "success": true,
+  "claim_id": "CLM-20261127-WT04",
+  "has_verdict": true,
+  "final_verdict": "MANUAL_REVIEW",
+  "verdict": {
+    "final_verdict": "MANUAL_REVIEW",
+    "decision_reason": "Claim routed to MANUAL_REVIEW because automated evidence is incomplete...",
+    "fraud_risk_level": "MEDIUM",
+    "fraud_risk_score": 30.0,
+    "verification_summary": {
+      "overall_status": "REVIEW_REQUIRED",
+      "consistency_score": 66.9,
+      "evidence_coverage_percentage": 75.0,
+      "total_comparisons": 20,
+      "matched_comparisons": 3,
+      "mismatched_comparisons": 0,
+      "missing_evidence_count": 4,
+      "inconclusive_count": 1
+    },
+    "passed_checks": [...],
+    "failed_checks": [],
+    "inconclusive_checks": [...],
+    "manual_review_required": true,
+    "manual_review_remarks": [...],
+    "risk_reasons": [...],
+    "decision_timestamp": "2026-11-27T12:51:08.452301"
+  }
+}
+```
+
+### E. Frontend UI Integration (`frontend/index.html`, `frontend/style.css`, `frontend/app.js`)
+* **Modal Header Verdict Badge:** `#modal-header-verdict-badge` beside `#modal-details-id` displays the live status (`ACCEPTED`, `NOT ACCEPTED`, `MANUAL REVIEW`, or `PENDING`).
+* **Top-of-Modal Final Claim Verdict Panel (`#final-verdict-panel`):** Displayed at the top of `#modal-claim-details` with color-coded status styling (green/red/amber/neutral), `fraud_risk_level` + numeric risk score badge, **Decision Rationale**, verification summary chips (`Score`, `Checks`, `Passed`, `Failed`, `Inconclusive`), itemized **Passed Checks**, **Failed Checks & Contradictions**, and **Inconclusive / Missing Evidence** lists, **Manual Review Guidance** box when applicable, and localized **Decision Timestamp**.
+* **Claim Cards (`renderClaimCard`):** Both **My Submissions** and **Policy Claim Lookup** render compact Final Claim Verdict badges directly in card headers and append cache-busting timestamps to report download links after re-verification.
+
+### F. PDF & Receipt Reports (`backend/services/receipt.py`)
+* **Complete Claim Verification PDF (`generate_document_intelligence_report_pdf`):** When a claim has an evaluated verdict, renders a dedicated page titled **`Page X: Final Claim Verdict and Decision Summary`** (`Page 8` following Phase 7 `Page 7`, moving processing errors/disclaimer to `Page 9`) containing:
+  * Color-coded `FINAL CLAIM VERDICT` and `FRAUD RISK` summary banner
+  * `Final Verdict`, `Fraud Risk Level & Score`, `Decision Reason`, `Verification Summary`, `Decision Timestamp`, and `Manual Review Remarks` (when present)
+  * Structured tables for `Passed Checks`, `Failed Checks`, and `Inconclusive Checks`
+* **Submission Receipt PDF (`generate_claim_receipt_pdf`):** Includes a `3. Final Claim Verdict Decision Summary` table (`Final Verdict`, `Decision Reason`, and `Review Remarks` when present) whenever the claim has a persisted verdict, while preserving legacy receipts when `verdict` is `None`.
 
 ---
 
@@ -289,13 +396,19 @@ ClaimSense-AI/
 │   ├── app.py                             # Flask application factory
 │   ├── config.py                          # Environment configuration
 │   ├── database/                          # Persistence layer
-│   │   ├── models.py                      # SQLAlchemy ORM models
+│   │   ├── db.py                          # Engine lifecycle & idempotent schema migrations
+│   │   ├── models.py                      # SQLAlchemy ORM models (incl. Claim verdict fields)
 │   │   └── claimsense.db                  # [Local] Primary SQLite production database
 │   ├── routes/                            # REST API blueprints (auth, claims, health)
 │   └── services/                          # Domain services
 │       ├── ocr/                           # Document intelligence & OCR
 │       ├── nlp/                           # Rule-based narrative & timeline analysis
-│       ├── verification/                  # Phase 7 Cross-Source Verification engine
+│       ├── risk/                          # Weighted fraud-risk assessment
+│       │   └── assessor.py                # Deterministic FraudRiskAssessor
+│       ├── verification/                  # Cross-Source Verification & Final Verdict engine
+│       │   ├── service.py                 # Verification + risk + verdict orchestrator
+│       │   └── verdict.py                 # FinalVerdictEngine decision rules
+│       ├── receipt.py                     # Submission receipts & Complete Verification PDFs
 │       └── vision/                        # Damage detection & threshold resolution
 │           ├── damage_detector.py         # YOLOv8 detector with per-class threshold support
 │           └── shadow_worker.py           # Hardened shadow trial worker
@@ -322,6 +435,7 @@ ClaimSense-AI/
 │   └── ml_accuracy_program_final_report.md# Master ML accuracy program report
 ├── scripts/                               # Operational & evaluation CLI tools
 ├── tests/                                 # Automated test suite
+│   ├── test_final_verdict.py              # Final Claim Verdict, Risk & PDF/UI integration tests
 │   ├── test_per_class_thresholds.py       # Per-class threshold architecture unit tests
 │   ├── test_phase5_vision.py              # Computer vision regression suite
 │   └── test_e2e.py                        # Master E2E integration test suite
@@ -362,9 +476,9 @@ Copy-Item .env.example .env
 
 ### 3. Launch the Application
 ```powershell
-python backend/app.py
+.\.venv\Scripts\python.exe backend/app.py
 ```
-Open `http://127.0.0.1:5001/` in any modern web browser to access the assessor dashboard.
+Open `http://127.0.0.1:5000/` in any modern web browser to access the assessor dashboard (default `HOST=127.0.0.1`, `PORT=5000` in `.env.example`; `.env` configures runtime overrides such as `DATABASE_PATH`).
 
 ---
 
@@ -373,7 +487,8 @@ Open `http://127.0.0.1:5001/` in any modern web browser to access the assessor d
 | Phase | Milestone Name | Status | Summary |
 | :---: | :--- | :---: | :--- |
 | **Phase 1–6** | Foundations, DB, OCR, Vision, NLP | **Completed** | Full multi-modal claim ingestion and processing pipelines. |
-| **Phase 7** | Cross-Source Verification | **Completed** | Deterministic consistency engine, 8-page PDF audit reports. |
+| **Phase 7** | Cross-Source Verification | **Completed** | Deterministic consistency engine and consolidated verification PDF reports. |
+| **Final Verdict** | Risk Scoring & Final Claim Verdict | **Integrated** | Deterministic `FraudRiskAssessor`, `FinalVerdictEngine` (`ACCEPTED`/`NOT_ACCEPTED`/`MANUAL_REVIEW`), DB migrations, APIs, UI panel, and dedicated PDF verdict page. |
 | **Phase 8** | Dataset Preparation & Gate P | **Closed at Gate P** | Multi-tier datasets, dual-blind annotation, offline safety hardening. |
 | **Phase 9.12–9.18** | ML Accuracy Program | **Completed & Closed** | Crack forensics, CarDD retraining, Gate 5 scorecard, baseline retained. |
 | **Phase 9.19** | Pre-Start Readiness & Closure | **Completed & Closed** | Quarantine boundary confirmed, CarDD_300/test sealed as consumed. |
