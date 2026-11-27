@@ -1302,7 +1302,10 @@
             <div class="modal-header">
                 <div>
                     <h3 id="modal-details-title" data-i18n="modal_claim_details_title">Claim Details</h3>
-                    <span id="modal-details-id" class="claim-id-badge">CLM-XXXXXXXX</span>
+                    <div class="verdict-badges-group" style="margin-top: 4px;">
+                        <span id="modal-details-id" class="claim-id-badge">CLM-XXXXXXXX</span>
+                        <span id="modal-header-verdict-badge" class="verdict-badge verdict-badge-pending">VERDICT: PENDING</span>
+                    </div>
                 </div>
                 <button type="button" class="btn-close-modal" id="btn-close-details-modal" aria-label="Close modal">&times;</button>
             </div>
@@ -1335,6 +1338,53 @@
                     <div class="detail-box wide">
                         <span class="detail-label" data-i18n="lbl_narrative">Accident Description / Narrative</span>
                         <p class="detail-val desc-paragraph" id="detail-description">-</p>
+                    </div>
+                </div>
+
+                <!-- FINAL CLAIM VERDICT / DECISION ENGINE PANEL (Top-of-Modal Decision Summary) -->
+                <div id="final-verdict-panel" class="final-verdict-card verdict-pending mt-3 mb-3">
+                    <div class="verdict-card-top">
+                        <div class="verdict-title-group">
+                            <span class="verdict-eyebrow">Final Claim Verdict &bull; Decision Engine</span>
+                            <h4 class="verdict-headline" id="verdict-headline-text">Awaiting Decision Evaluation</h4>
+                        </div>
+                        <div class="verdict-badges-group">
+                            <span id="verdict-status-badge" class="verdict-badge verdict-badge-pending">PENDING</span>
+                            <span id="verdict-risk-badge" class="risk-badge risk-badge-neutral">RISK: N/A</span>
+                        </div>
+                    </div>
+
+                    <div class="verdict-reason-box">
+                        <span class="verdict-section-label">Decision Rationale</span>
+                        <p id="verdict-decision-reason" class="verdict-reason-text">
+                            No final decision verdict has been recorded for this claim yet. Scroll to Phase 7 and click Run Verification to evaluate multi-source evidence and fraud risk.
+                        </p>
+                    </div>
+
+                    <div id="verdict-summary-chips" class="verdict-summary-chips" style="display: none;"></div>
+
+                    <div id="verdict-checks-grid" class="verdict-checks-grid" style="display: none;">
+                        <div id="verdict-passed-container" class="verdict-check-box verdict-check-passed" style="display: none;">
+                            <span class="verdict-check-title">Passed Checks</span>
+                            <ul id="verdict-passed-list" class="verdict-check-list"></ul>
+                        </div>
+                        <div id="verdict-failed-container" class="verdict-check-box verdict-check-failed" style="display: none;">
+                            <span class="verdict-check-title">Failed Checks &amp; Contradictions</span>
+                            <ul id="verdict-failed-list" class="verdict-check-list"></ul>
+                        </div>
+                        <div id="verdict-inconclusive-container" class="verdict-check-box verdict-check-inconclusive" style="display: none;">
+                            <span class="verdict-check-title">Inconclusive / Missing Evidence</span>
+                            <ul id="verdict-inconclusive-list" class="verdict-check-list"></ul>
+                        </div>
+                    </div>
+
+                    <div id="verdict-remarks-box" class="verdict-remarks-box" style="display: none;">
+                        <strong>Manual Review Guidance:</strong>
+                        <span id="verdict-remarks-text"></span>
+                    </div>
+
+                    <div class="verdict-card-footer">
+                        <span id="verdict-timestamp" class="verdict-timestamp">Not evaluated</span>
                     </div>
                 </div>
 

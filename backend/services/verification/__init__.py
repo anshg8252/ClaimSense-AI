@@ -46,8 +46,20 @@ from backend.services.verification.service import (
     ClaimVerificationService,
     VerificationPipelineError,
 )
+from backend.services.verification.verdict import (
+    ALL_FINAL_VERDICTS,
+    FinalVerdictEngine,
+    VERDICT_ACCEPTED,
+    VERDICT_MANUAL_REVIEW,
+    VERDICT_NOT_ACCEPTED,
+)
 
 __all__ = [
+    "ALL_FINAL_VERDICTS",
+    "VERDICT_ACCEPTED",
+    "VERDICT_MANUAL_REVIEW",
+    "VERDICT_NOT_ACCEPTED",
+    "FinalVerdictEngine",
     "STATUS_MATCH",
     "STATUS_MISMATCH",
     "STATUS_MISSING_IN_SOURCE",

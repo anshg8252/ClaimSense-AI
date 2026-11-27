@@ -198,6 +198,20 @@ def _ensure_schema_migrations(engine: Engine) -> None:
                         with engine.begin() as conn:
                             conn.execute(text(f"ALTER TABLE claim_verification_runs ADD COLUMN {col_name} {ddl}"))
 
+        if "claims" in table_names:
+            claims_cols = {col["name"] for col in inspector.get_columns("claims")}
+            claims_migrations = {
+                "final_verdict": "VARCHAR(32)",
+                "decision_reason": "TEXT",
+                "fraud_risk_level": "VARCHAR(32)",
+                "decision_timestamp": "DATETIME",
+                "verdict_details": "TEXT",
+            }
+            for col_name, ddl in claims_migrations.items():
+                if col_name not in claims_cols:
+                    with engine.begin() as conn:
+                        conn.execute(text(f"ALTER TABLE claims ADD COLUMN {col_name} {ddl}"))
+
     except Exception as exc:
         logger.warning(f"Schema migration check skipped or failed: {exc}")
 

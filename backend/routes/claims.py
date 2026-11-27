@@ -290,12 +290,22 @@ def submit_claim():
 
         logger.info(f"Successfully processed and stored claim in disk and SQLite: {claim_id}")
 
+        auto_verdict = None
+        if str(request.args.get("auto_verify", "")).lower() in ("true", "1", "yes"):
+            try:
+                auto_eval = ClaimVerificationService.evaluate_and_persist_verdict(claim_id=claim_id, force=True)
+                auto_verdict = auto_eval.get("verdict")
+            except Exception as auto_verdict_exc:
+                logger.warning(f"Optional sync auto-verdict failed for claim {claim_id}: {auto_verdict_exc}")
+
         return jsonify({
             "success": True,
             "claim_id": claim_id,
             "message": "Claim submitted successfully",
             "receipt_url": f"/api/claims/{claim_id}/receipt",
             "damage_analysis": auto_damage_analysis,
+            "verdict": auto_verdict,
+            "final_verdict": auto_verdict.get("final_verdict") if isinstance(auto_verdict, dict) else None,
             "data": {
                 "claim_id": claim_id,
                 "user_id": current_user_id,
@@ -305,6 +315,8 @@ def submit_claim():
                 "accident_date": metadata["accident_date"],
                 "claim_description": metadata["claim_description"],
                 "status": "SUBMITTED",
+                "final_verdict": auto_verdict.get("final_verdict") if isinstance(auto_verdict, dict) else None,
+                "verdict": auto_verdict,
                 "files_count": len(saved_files),
                 "created_at": metadata["created_at"],
             },
@@ -609,6 +621,15 @@ def get_claim_document_report(claim_id: str):
                 "message": "You are not authorized to access this document intelligence report.",
             }), 403
 
+        # Auto-compute verdict if verification already ran cleanly on an older claim before Final Verdict existed
+        if claim.final_verdict is None and len(claim.verification_runs) > 0:
+            try:
+                ClaimVerificationService.evaluate_and_persist_verdict(claim_id=claim_id, force=False)
+                db.expire_all()
+                claim = db.query(Claim).filter_by(claim_id=claim_id).first()
+            except Exception as auto_v_err:
+                logger.warning(f"Non-fatal verdict back-fill skipped during report generation for {claim_id}: {auto_v_err}")
+
         claim_dict = claim.to_dict(include_evidence=True)
         extracted_rows = [
             row.to_dict() for row in db.query(ExtractedInformation)
@@ -823,6 +844,7 @@ def get_claim_receipt(claim_id: str):
             "accident_date": claim_dict.get("accident_date"),
             "claim_description": claim_dict.get("claim_description"),
             "status": claim_dict.get("status", "SUBMITTED"),
+            "final_verdict": claim_dict.get("verdict"),
             "created_at": claim_dict.get("created_at"),
             "documents": claim_dict.get("documents", []),
             "images": claim_dict.get("images", []),
@@ -1775,6 +1797,7 @@ def verify_claim_cross_source(claim_id: str):
             "success": True,
             "claim_id": claim_id,
             "verification": verification_result,
+            "verdict": verification_result.get("final_verdict"),
         }), 200
     except VerificationPipelineError as v_err:
         return jsonify({
@@ -1825,11 +1848,16 @@ def get_claim_verification(claim_id: str):
             }), 404
 
         latest_run = sorted(claim.verification_runs, key=lambda r: r.id)[-1]
+        verification_payload = latest_run.to_dict(include_findings=True)
+        verdict_payload = claim.get_final_verdict_dict()
+        if verdict_payload and "final_verdict" not in verification_payload:
+            verification_payload["final_verdict"] = verdict_payload
         return jsonify({
             "success": True,
             "claim_id": claim_id,
             "verified": True,
-            "verification": latest_run.to_dict(include_findings=True),
+            "verification": verification_payload,
+            "verdict": verdict_payload,
         }), 200
 
 
@@ -1893,6 +1921,7 @@ def get_claim_verification_summary(claim_id: str):
 
         latest_run = sorted(claim.verification_runs, key=lambda r: r.id)[-1]
         data = latest_run.to_dict(include_findings=False)
+        verdict_payload = claim.get_final_verdict_dict()
 
         return jsonify({
             "success": True,
@@ -1907,7 +1936,83 @@ def get_claim_verification_summary(claim_id: str):
             "critical_severity_count": data["critical_severity_count"],
             "recommendations": data["recommendations"],
             "processing_time_ms": data["processing_time_ms"],
+            "verdict": verdict_payload,
+            "final_verdict": verdict_payload.get("final_verdict") if verdict_payload else claim.final_verdict,
         }), 200
+
+
+@claims_bp.route("/claims/<claim_id>/verdict", methods=["GET"])
+def get_claim_verdict(claim_id: str):
+    """Retrieve the persisted final claim verdict and fraud risk explanation."""
+    if not is_valid_claim_id_format(claim_id):
+        return jsonify({"success": False, "error": "Invalid Claim ID format"}), 400
+
+    user_id = session.get("user_id")
+    user_role = session.get("role")
+
+    with get_db_session() as db:
+        claim = db.query(Claim).filter_by(claim_id=claim_id).first()
+        if not claim:
+            return jsonify({"success": False, "error": "Not Found", "message": "Claim not found"}), 404
+
+        if not can_user_access_claim(claim, user_id, user_role):
+            return jsonify({
+                "success": False,
+                "error": "Unauthorized" if not user_id else "Forbidden",
+            }), 401 if not user_id else 403
+
+        verdict_payload = claim.get_final_verdict_dict()
+        return jsonify({
+            "success": True,
+            "claim_id": claim_id,
+            "has_verdict": verdict_payload is not None,
+            "final_verdict": verdict_payload.get("final_verdict") if verdict_payload else None,
+            "verdict": verdict_payload,
+        }), 200
+
+
+@claims_bp.route("/claims/<claim_id>/verdict", methods=["POST"])
+@csrf.exempt
+def evaluate_claim_verdict(claim_id: str):
+    """Evaluate (or re-evaluate) and persist the final claim verdict."""
+    if not is_valid_claim_id_format(claim_id):
+        return jsonify({"success": False, "error": "Invalid Claim ID format"}), 400
+
+    user_id = session.get("user_id")
+    user_role = session.get("role")
+
+    with get_db_session() as db:
+        claim = db.query(Claim).filter_by(claim_id=claim_id).first()
+        if not claim:
+            return jsonify({"success": False, "error": "Not Found", "message": "Claim not found"}), 404
+
+        if not can_user_access_claim(claim, user_id, user_role):
+            return jsonify({
+                "success": False,
+                "error": "Unauthorized" if not user_id else "Forbidden",
+            }), 401 if not user_id else 403
+
+    payload = request.get_json(silent=True) or {}
+    force = bool(payload.get("force", True))
+
+    try:
+        evaluated = ClaimVerificationService.evaluate_and_persist_verdict(claim_id=claim_id, force=force)
+        verdict_payload = evaluated.get("verdict")
+        return jsonify({
+            "success": True,
+            "claim_id": claim_id,
+            "has_verdict": verdict_payload is not None,
+            "final_verdict": verdict_payload.get("final_verdict") if isinstance(verdict_payload, dict) else None,
+            "verdict": verdict_payload,
+            "verification": evaluated.get("verification"),
+        }), 200
+    except VerificationPipelineError as e:
+        logger.error(f"Final verdict evaluation error for {claim_id}: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Verdict Evaluation Failed",
+            "message": str(e),
+        }), 500
 
 
 
