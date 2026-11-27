@@ -41,6 +41,14 @@ def backup_sqlite_database(
         print(f"[ERROR] Source database does not exist: {source_db_path}", file=sys.stderr)
         return False, None, None
 
+    if source_db_path.stat().st_size == 0:
+        print(
+            f"[ERROR] Source database is empty (0 bytes): {source_db_path}. "
+            f"Refusing to create a silent empty backup. Configure DATABASE_PATH or pass --db.",
+            file=sys.stderr,
+        )
+        return False, None, None
+
     if not dry_run:
         backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -128,13 +136,52 @@ def verify_backup(backup_path: Path) -> bool:
         return False
 
 
+def restore_sqlite_database(backup_path: Path, target_db_path: Path) -> bool:
+    """Restores a verified SQLite backup archive into target_db_path using the sqlite3 backup API."""
+    backup_path = Path(backup_path).resolve()
+    target_db_path = Path(target_db_path).resolve()
+
+    if not verify_backup(backup_path):
+        return False
+
+    target_db_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        src_conn = sqlite3.connect(str(backup_path))
+        dst_conn = sqlite3.connect(str(target_db_path))
+        with dst_conn:
+            src_conn.backup(dst_conn, pages=100, sleep=0.01)
+        dst_conn.close()
+        src_conn.close()
+        return verify_backup(target_db_path)
+    except Exception as exc:
+        print(f"[ERROR] Restore execution failed: {exc}", file=sys.stderr)
+        return False
+
+
+def resolve_default_db_path() -> str:
+    """Resolves the configured SQLite database path via DATABASE_PATH env var or backend.config.Config."""
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+    env_db = os.getenv("DATABASE_PATH", "").strip()
+    if env_db:
+        p = Path(env_db)
+        return str(p if p.is_absolute() else (project_root / p))
+    try:
+        from backend.config import Config
+        return str(Config.DATABASE_PATH)
+    except Exception:
+        return str(project_root / "data" / "claimsense.db")
+
+
 def main():
+    default_db = resolve_default_db_path()
     parser = argparse.ArgumentParser(description="ClaimSense AI SQLite Online Backup Utility")
     parser.add_argument(
         "--db",
         type=str,
-        default="data/claimsense.db",
-        help="Path to source SQLite database (default: data/claimsense.db)",
+        default=default_db,
+        help=f"Path to source SQLite database (default: {default_db})",
     )
     parser.add_argument(
         "--dest",

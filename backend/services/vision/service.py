@@ -11,7 +11,7 @@ import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
 from backend.config import Config
 from backend.database.db import get_db_session
@@ -53,7 +53,7 @@ def compute_file_sha256(file_path: Path) -> str:
 def process_claim_damage_detection(
     claim_id: str,
     image_id: Optional[int] = None,
-    conf_threshold: float = 0.15,
+    conf_threshold: Union[float, int, Dict[Union[int, str], float]] = 0.15,
     force_opencv: bool = False,
     force_recompute: bool = False,
     upload_base: Optional[Path] = None,
@@ -376,7 +376,7 @@ def process_claim_damage_detection(
 def trigger_claim_damage_detection_async(
     claim_id: str,
     image_id: Optional[int] = None,
-    conf_threshold: float = 0.15,
+    conf_threshold: Union[float, int, Dict[Union[int, str], float]] = 0.15,
     force_opencv: bool = False,
     upload_base: Optional[Path] = None,
 ) -> threading.Thread:

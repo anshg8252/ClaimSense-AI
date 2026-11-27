@@ -1,0 +1,14 @@
+# ClaimSense AI Phase 9.20 Locked Independent Benchmark
+path: datasets/phase9_20_benchmark
+train: images
+val: images
+test: images
+
+nc: 6
+names:
+  0: dent
+  1: scratch
+  2: crack
+  3: glass shatter
+  4: lamp broken
+  5: tire flat

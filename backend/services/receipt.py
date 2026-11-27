@@ -2073,6 +2073,7 @@ def freeze_report(
     user_id: Optional[int] = None,
     report_type: str = "VERIFICATION_AUDIT",
     upload_root: str | os.PathLike[str] | None = None,
+    reports_root: str | os.PathLike[str] | None = None,
 ) -> Optional[Dict[str, Any]]:
     """Generates the official Consolidated Verification Report, calculates its SHA-256 hash,
     saves the PDF to disk, and records an immutable snapshot in the reports table.
@@ -2080,8 +2081,12 @@ def freeze_report(
     Conforms to Phase 10 Stage 2 ADR and Phase 11 Report Snapshot Persistence.
     """
     import hashlib
+    from backend.config import Config
     from backend.database.db import get_db_session
     from backend.database.models import Claim, ExtractedInformation, Report
+
+    resolved_upload_root = Path(upload_root) if upload_root is not None else Path(Config.UPLOAD_FOLDER)
+    resolved_reports_root = Path(reports_root) if reports_root is not None else Path(Config.REPORTS_FOLDER)
 
     with get_db_session() as db:
         claim = db.query(Claim).filter_by(claim_id=claim_id).first()
@@ -2099,15 +2104,14 @@ def freeze_report(
         pdf_bytes = generate_document_intelligence_report_pdf(
             claim_dict,
             extracted_rows,
-            upload_root=upload_root,
+            upload_root=resolved_upload_root,
         )
 
         file_hash = hashlib.sha256(pdf_bytes).hexdigest()
         file_size = len(pdf_bytes)
 
         # Determine target persistence path
-        root = Path(upload_root or (Path(__file__).resolve().parent.parent.parent / "reports"))
-        claim_report_dir = root / claim_id
+        claim_report_dir = resolved_reports_root / claim_id
         claim_report_dir.mkdir(parents=True, exist_ok=True)
         timestamp_str = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         filename = f"{report_type.lower()}_{timestamp_str}_{file_hash[:8]}.pdf"

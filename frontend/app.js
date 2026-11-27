@@ -13,6 +13,7 @@ function initClaimSenseApp() {
     let activeSection = "submit";
     let mySubmissionsData = [];
     let csrfToken = null;
+    let currentLang = localStorage.getItem("claimsense_lang") || "en";
 
     // -------------------------------------------------------------
     // Helper: HTML Entity Escaping (Prevent Stored & Reflected XSS)
@@ -98,25 +99,33 @@ function initClaimSenseApp() {
     fetchCsrfToken();
 
     // -------------------------------------------------------------
-    // Intelligent Dual-Port / Dev Server URL Resolution
+    // Application API Base URL Resolution (Same-Origin or Configured Base)
     // -------------------------------------------------------------
+    function getConfiguredApiBase() {
+        if (typeof window !== "undefined" && typeof window.CLAIMSENSE_API_BASE === "string" && window.CLAIMSENSE_API_BASE.trim()) {
+            return window.CLAIMSENSE_API_BASE.trim().replace(/\/+$/, "");
+        }
+        if (typeof document !== "undefined") {
+            const meta = document.querySelector('meta[name="api-base"]');
+            if (meta && meta.content && meta.content.trim()) {
+                return meta.content.trim().replace(/\/+$/, "");
+            }
+        }
+        return "";
+    }
+
     function getApiUrl(endpoint) {
         if (!endpoint) return "";
         if (endpoint.startsWith("http://") || endpoint.startsWith("https://")) {
             return endpoint;
         }
         const ep = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
-        if (typeof window !== "undefined" && window.location) {
-            const proto = window.location.protocol;
-            const port = window.location.port;
-            // If served via VS Code Live Server (port 5500) or other frontend dev server (port != 5001 & != 5000)
-            if (proto === "http:" || proto === "https:") {
-                if (port && port !== "5001" && port !== "5000") {
-                    return `http://${window.location.hostname}:5001${ep}`;
-                }
-            } else if (proto === "file:") {
-                return `http://127.0.0.1:5001${ep}`;
-            }
+        const configuredBase = getConfiguredApiBase();
+        if (configuredBase) {
+            return `${configuredBase}${ep}`;
+        }
+        if (typeof window !== "undefined" && window.location && window.location.protocol === "file:") {
+            return `http://127.0.0.1:5001${ep}`;
         }
         return ep;
     }
@@ -140,12 +149,15 @@ function initClaimSenseApp() {
         try {
             response = await fetch(fullUrl, fetchOptions);
         } catch (networkErr) {
+            const originHint = (typeof window !== "undefined" && window.location && window.location.origin && window.location.origin !== "null")
+                ? window.location.origin
+                : (getConfiguredApiBase() || "the configured backend");
             return {
                 ok: false,
                 status: 0,
                 contentType: "",
                 data: null,
-                error: `Cannot connect to ClaimSense AI backend. Please verify server is running on http://127.0.0.1:5001. (${networkErr.message})`,
+                error: `Cannot connect to ClaimSense AI backend (${originHint}). (${networkErr.message})`,
             };
         }
 
@@ -219,15 +231,15 @@ function initClaimSenseApp() {
 
     async function checkBackendHealth() {
         if (statusIndicator) statusIndicator.className = "status-indicator";
-        if (statusBadge) statusBadge.textContent = (typeof currentLang !== "undefined" && currentLang === "hi") ? "सर्वर जांचा जा रहा है..." : "Checking backend...";
+        if (statusBadge) statusBadge.textContent = currentLang === "hi" ? "सर्वर जांचा जा रहा है..." : "Checking backend...";
 
-        const res = await safeFetchJson("/api/health");
+        const res = await safeFetchJson("/api/health/live");
         if (res.ok && res.data) {
             if (statusIndicator) statusIndicator.className = "status-indicator connected";
-            if (statusBadge) statusBadge.textContent = (typeof currentLang !== "undefined" && currentLang === "hi") ? "बैकएंड कनेक्टेड" : "Backend Connected";
+            if (statusBadge) statusBadge.textContent = currentLang === "hi" ? "बैकएंड कनेक्टेड" : "Backend Connected";
         } else {
             if (statusIndicator) statusIndicator.className = "status-indicator error";
-            if (statusBadge) statusBadge.textContent = (typeof currentLang !== "undefined" && currentLang === "hi") ? "बैकएंड डिस्कनेक्टेड" : "Backend Disconnected";
+            if (statusBadge) statusBadge.textContent = currentLang === "hi" ? "बैकएंड डिस्कनेक्टेड" : "Backend Disconnected";
         }
     }
     checkBackendHealth();
@@ -670,7 +682,7 @@ function initClaimSenseApp() {
     // -------------------------------------------------------------
     // 4b. Multilingual Support (English & Hindi Translations)
     // -------------------------------------------------------------
-    let currentLang = localStorage.getItem("claimsense_lang") || "en";
+    // currentLang is initialized at the top of initClaimSenseApp() to avoid TDZ errors.
 
     function t(key, fallback = "") {
         const tr = window.CLAIM_TRANSLATIONS || window.CLAIMSENSE_TRANSLATIONS || {};

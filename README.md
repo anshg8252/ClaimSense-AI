@@ -9,8 +9,8 @@
 [![Database](https://img.shields.io/badge/Database-SQLite%203%20%7C%20WAL%20Telemetry-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![Computer Vision](https://img.shields.io/badge/Vision-Ultralytics%20YOLOv8-blueviolet)](https://github.com/ultralytics/ultralytics)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B%20%7C%20CPU%20%2F%20CUDA-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
-[![Tests](https://img.shields.io/badge/Tests-214%20Total%20%7C%20213%20Passed%20(1%20Skipped)-brightgreen)](tests/)
-[![Roadmap](https://img.shields.io/badge/Roadmap-Phase%2012%20Complete%20%7C%20Async%20Reliability%20%26%20Defense%20Ready-brightgreen)](#-project-roadmap)
+[![Tests](https://img.shields.io/badge/Tests-238%20Collected%20%7C%20237%20Passed%20(1%20Skipped)-brightgreen)](tests/)
+[![Roadmap](https://img.shields.io/badge/Roadmap-Phase%209.20%20%2B%2011%20%2B%2012%20Integrated%20%7C%20Phase%209.21%20ON%20HOLD-blue)](#-project-roadmap)
 
 ---
 
@@ -135,6 +135,7 @@ flowchart TD
   6. `tire flat` &mdash; Punctured, deflated, or detached tires and wheels.
 * **Spatial Damage Localization:** Bounding boxes are dynamically mapped to vehicle coordinate zones (`front_left`, `front_right`, `center`, `rear_left`, `rear_right`, `roof`, etc.) to facilitate spatial cross-checking.
 * **Evidence Visualization:** Renders high-resolution annotated damage overlays with confidence badges and bounding-box coordinates.
+* **Phase 9.20 Per-Class Threshold Support (Opt-In):** `VehicleDamageDetector._resolve_conf_thresholds()` and `POST /api/claims/<claim_id>/analyze-damage` support both legacy scalar `conf_threshold` (default `0.15`, `iou_threshold=0.45`) and opt-in per-class dictionaries (e.g., `{"dent": 0.18, "scratch": 0.28}`), rejecting booleans, out-of-range values, and unknown classes with `HTTP 400`. `models/phase5/best.pt` remains the sole active production checkpoint (`EXP20-01`–`06` were not promoted); **Phase 9.21 remains ON HOLD**.
 
 ### 4. Accident Narrative & Chronological Analysis (NLP)
 * **Deterministic Rule-Based NLP:** Extracts entities, physical actions, and vehicle parts from claimant statements without unconstrained generative hallucination.
@@ -424,9 +425,19 @@ The formal project roadmap comprises 11 structured phases:
 | **Phase 7** | Cross-Source Verification | **Completed** | Multi-source consistency engine, evidence coverage, 8-page audit PDF. |
 | **Phase 8** | Dataset Preparation & Model Training | **Closed at Gate P** | Multi-tier datasets, dual-blind annotation, EXP01–03, Gate P safety hardening. |
 | **Phase 9** | Model Evaluation & Optimization | **Completed & Certified** | Controlled retraining (P9-T01/T02), independent CarDD benchmark (+35.8% mAP50, +85.2% precision), crack failure forensics, Category A production model retained, E2E system validation (10/10 workflows, 158 tests passed), closure package. |
+| **Phase 9.12–9.18** | ML Accuracy Program | **Completed & Closed** | Crack forensics, CarDD_Expanded_v1 retraining, confidence calibration, Gate 5 scorecard, Phase 5 baseline retained. |
+| **Phase 9.19** | Pre-Start Readiness & Closure | **Completed & Closed** | Quarantine boundary confirmed; `CarDD_300/test/` sealed as consumed exploratory benchmark. |
+| **Phase 9.20** | Advanced Detection & Forensic Audit | **Completed & Verified** | Opt-in per-class threshold architecture in `damage_detector.py` (`11/11` tests); `EXP20-01`–`06` evaluated on 164-image virgin suite (`67c58284...`); **no model promotion** (`models/phase5/best.pt` retained). |
+| **Phase 9.21** | Patch Tiling & Polygon Segmentation | **ON HOLD** | Proposed SAHI inference tiling and polygon instance segmentation. **Paused by governance decision; not started.** |
 | **Phase 10** | Full System Integration, E2E & Concurrency Testing | **CONDITIONALLY COMPLETE** | Master E2E integration test suite in `tests/test_e2e.py` (13/13 passed, 191 total repository tests); 10/10 operational multi-modal workflows verified deterministically; Stage 2 multi-user concurrency testing executed across 10, 25, and 50 users (6,901 requests, 0.00% error rate, Conditional Pass at 50 users); Report persistence architecture decision completed (ADR Hybrid Model). (Future ML crack retraining decoupled into Phase 9.12). |
 | **Phase 11** | Production Hardening, Containerization & Operational Readiness | **Completed** | Multi-stage Docker containerization, Docker Compose with Nginx reverse proxy, standard WSGI entrypoint (`wsgi.py`), cross-platform launcher (`scripts/serve_production.py`), SQLite WAL mode, zero-downtime online backup automation (`scripts/backup_database.py`), structured JSON logging, correlation IDs, Report snapshot persistence, and deep health/metrics telemetry (`/api/health/*`). 203 tests verified (202 passed, 1 skipped). |
 | **Phase 12** | Asynchronous Processing, Production Reliability & Academic Defense Readiness | **Completed & Certified** | Decoupled asynchronous intake (`HTTP 202 Accepted`, 78.4 ms intake, 97.5% latency reduction), pluggable dual-engine task queue (Redis 7 + ThreadPoolExecutor), `ProcessingTask` ORM model & auto-migration, idempotency & stale auto-recovery, real-time client polling UX with stage progress widgets, readiness & operational queue telemetry (`/api/health/*`), and complete Academic Defense Readiness package (85 viva Q&As, 12-min demo runbook, two-tier architecture explanation, limitations disclosure, 16-slide presentation deck). 214 tests verified (213 passed, 1 skipped). |
+
+> [!IMPORTANT]
+> **ML Model Governance & Phase 9.21 Status:**
+> * `models/phase5/best.pt` remains the **only authorized production checkpoint** (default scalar `conf_threshold=0.15`, `iou_threshold=0.45`).
+> * Phase 9.20 per-class thresholding (`backend/services/vision/damage_detector.py`) is an opt-in, backward-compatible software capability; no candidate model (`EXP20-01`–`06`) was promoted.
+> * **Phase 9.21 is ON HOLD** — no new model training or experimental segmentation work is active.
 
 > [!NOTE]
 > **Phase 10 Governance & Workstream Disambiguation:**
@@ -461,52 +472,44 @@ ClaimSense-AI/
 │   │   ├── receipt.py                     # ReportLab PDF receipt & 8-page audit report generator
 │   │   ├── ocr/                           # Document intelligence & Tesseract OCR pipeline
 │   │   ├── nlp/                           # Deterministic narrative & chronological analyzer
-│   │   ├── vision/                        # YOLOv8 damage detection, singleton & shadow worker
+│   │   ├── queue/                         # Phase 12 dual-engine TaskManager (RedisTaskBroker & ThreadedTaskBroker)
+│   │   ├── tasks/                         # Multi-stage asynchronous claim processing pipeline
+│   │   ├── vision/                        # YOLOv8 damage detection (Phase 9.20 per-class support), singleton & shadow worker
 │   │   └── verification/                  # Phase 7 Cross-Source Verification engine & rules
-│   └── utils/                             # Centralized utilities (security, logging, validators)
+│   └── utils/                             # Centralized utilities (security, JSON logging, validators)
 ├── data/                                  # Default primary database storage (per config.py & .env.example)
 │   └── claimsense.db                      # [Default] Configured default primary SQLite database
+├── deploy/                                # Reverse proxy configs (Nginx HTTP server block; TLS pending prod certs)
 ├── frontend/                              # Responsive assessor web application
-│   ├── index.html                         # Single-page assessor dashboard & claim modal
-│   ├── app.js                             # Client-side API controller & verification UI renderer
+│   ├── index.html                         # Single-page assessor dashboard, async tracker & claim modal
+│   ├── app.js                             # Client-side API controller (same-origin /api/health/live & async polling)
 │   └── style.css                          # Modern CSS styling & component design
-├── models/                                # Production model checkpoints
+├── models/                                # Production model checkpoints (weights gitignored; keep placeholder)
 │   └── phase5/
 │       └── best.pt                        # Authoritative production YOLOv8 checkpoint (SHA-256: 90d489e46...)
-├── reports/                               # Generated claim PDFs and verification exports
-├── runs/                                  # Research, training, and shadow trial records
-│   └── phase8/                            # Phase 8 master orchestration & gate reports
-│       ├── master_orchestration/          # Formal Gate A–P reports, metrics & sign-offs
-│       ├── domain_adaptation/             # EXP01–EXP03 domain adaptation checkpoints & logs
-│       └── shadow_trial/                  # Shadow trial configuration, kill-switch & logs
-├── scripts/                               # Operational CLI tools & validation scripts
-│   ├── execute_gate_p_offline_smoke_test.py # Gate P offline smoke test execution script
-│   ├── run_daily_shadow_monitor.py        # Daily 24-hour shadow telemetry audit script
-│   └── extract_adjudication_queue.py      # Script to extract human adjudication cases
-├── tests/                                 # Automated regression & integration test suite (15 modules, 191 tests)
+├── reports/                               # Frozen claim verification PDFs (configurable via REPORTS_FOLDER)
+├── runs/                                  # Research, training, integration audit & shadow trial records
+│   ├── phase8/                            # Phase 8 master orchestration & gate reports
+│   ├── phase9_20/                         # Phase 9.20 benchmark lock, experiment logs & forensic governance reports
+│   ├── integration_execution_2026_11_25/  # Controlled Phase 9.20 + 11 + 12 integration execution records
+│   └── integration_acceptance_2026_11_25/ # Pre-merge acceptance, security scan & blocker documentation
+├── scripts/                               # Operational CLI tools, WSGI launcher, worker daemon, backup & Phase 9.20 scripts
+│   ├── backup_database.py                 # Zero-downtime SQLite online backup & restore utility
+│   ├── run_worker.py                      # Standalone Phase 12 task worker daemon (--broker redis|auto|threaded)
+│   └── serve_production.py                # Cross-platform WSGI launcher (Waitress on Windows, Gunicorn on POSIX)
+├── tests/                                 # Automated test suite (20 modules, 238 collected tests)
 │   ├── load/                              # Phase 10 Stage 2 Locust load & concurrency testing harness
-│   │   ├── config.py                      # Load profiles, SLA targets & synthetic test fixtures
-│   │   ├── locustfile.py                  # User personas, CSRF handling & weighted tasks
-│   │   ├── README.md                      # Load testing architecture & execution guide
-│   │   ├── run_load_test.py               # Master automated benchmark & metrics collector
-│   │   └── server.py                      # Isolated test server with dynamic DB seeding
-│   ├── test_auth.py                       # Authentication & session tests (11 tests)
-│   ├── test_claims.py                     # Claim submission & validation tests (12 tests)
-│   ├── test_database.py                   # Relational schema tests (4 tests)
-│   ├── test_document_processing.py        # Document parsing & OCR tests (13 tests)
-│   ├── test_e2e.py                        # Master reproducible E2E integration test suite (13 tests)
-│   ├── test_health.py                     # Health diagnostics tests (4 tests)
-│   ├── test_load_validation.py            # Unit validation for load testing fixtures & harness (5 tests)
-│   ├── test_ownership_and_receipt.py      # Access control & PDF receipt tests (6 tests)
-│   ├── test_phase5_vision.py              # Computer vision & damage detection tests (30 tests)
-│   ├── test_phase6_nlp.py                 # NLP narrative & timeline tests (14 tests)
-│   ├── test_phase7_cross_source_failures.py # Cross-source negative & boundary tests (18 tests)
-│   ├── test_phase7_verification.py        # Cross-source verification engine tests (32 tests)
-│   ├── test_replacement_damage_bugfix.py  # Replacement vehicle image & bugfix tests (15 tests)
-│   ├── test_security.py                   # Security, CSRF & rate limit tests (8 tests)
-│   └── test_ui_redesign.py                # Dashboard & UI component tests (6 tests)
+│   ├── test_integration_phase12_phase920.py # Combined Phase 9.20 API + Phase 11/12 async & Compose policy tests
+│   ├── test_per_class_thresholds.py       # Phase 9.20 per-class confidence threshold unit tests (11 tests)
+│   ├── test_phase11_production.py         # Production hardening, WSGI, health probes & frozen PDF tests
+│   ├── test_phase12_async.py              # Async intake, TaskManager, idempotency & stale-task recovery tests
+│   ├── test_ui_redesign.py                # Dashboard, TDZ guard & same-origin health polling tests (Node VM)
+│   └── ...                                # Auth, claims, DB, OCR, E2E, Phase 5/6/7, security & pipeline suites
 ├── .env.example                           # Safe environment configuration template
 ├── .gitignore                             # Git ignore rules (binaries, databases, caches excluded)
+├── Dockerfile                             # Multi-stage container image definition
+├── docker-compose.yml                     # Multi-service Compose stack (redis, app, worker, nginx)
+├── wsgi.py                                # Standard WSGI entrypoint (`app` / `application`)
 ├── DEVELOPMENT_LOG.md                     # Comprehensive technical development log
 ├── requirements.txt                       # Python package dependencies
 └── README.md                              # Master project documentation
@@ -540,94 +543,121 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 2. Environment Configuration
+### 2. Environment Configuration & `SECRET_KEY` Enforcement
 Copy the sample environment file to create your local `.env`:
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Ensure the configuration variables in `.env` are set appropriately for local development:
+Key configuration variables (`backend/config.py` / `.env.example`):
 ```ini
-# Flask Server Settings
+# Flask & WSGI Settings
 FLASK_APP=backend/app.py
-FLASK_ENV=development
-FLASK_DEBUG=True
-PORT=5001
+FLASK_ENV=development          # Set to 'production' for hardened cookie/secret checks
+FLASK_DEBUG=True               # False in production
 HOST=127.0.0.1
-SECRET_KEY=dev-insecure-secret-key-claimsense-ai-local-only  # Change to strong secret in production
+PORT=5001                      # Default in Config is 5000; 5001 avoids local port collisions
+SECRET_KEY=dev-insecure-secret-key-claimsense-ai-local-only  # MUST be >=16 chars & non-default in production
 
-# Upload & File Storage Limits
+# Storage & Upload Limits
 UPLOAD_FOLDER=uploads
-MAX_CONTENT_LENGTH=16777216  # 16 MB maximum request payload
-
-# Database Configuration
-DATABASE_PATH=data/claimsense.db  # Default path per config.py / .env.example (or backend/database/claimsense.db)
+REPORTS_FOLDER=reports
+MAX_CONTENT_LENGTH=16777216    # 16 MB maximum request payload
+DATABASE_PATH=data/claimsense.db
 DATABASE_URL=sqlite:///data/claimsense.db
+SQLITE_WAL_MODE=true
+JSON_LOGGING=false
 
-# LLM Integration (Phase 9 Placeholder)
+# Phase 12 Asynchronous Queue & Worker Settings
+ASYNC_PROCESSING_ENABLED=false # Set true or pass ?async=true on POST /api/claims
+QUEUE_BROKER_TYPE=auto         # auto | redis | threaded
+REDIS_URL=redis://localhost:6379/0
+TASK_MAX_RETRIES=3
+TASK_TIMEOUT_SECONDS=300
+
+# CORS, LLM Placeholder & Risk Thresholds
+CORS_ALLOWED_ORIGINS=http://127.0.0.1:5000,http://localhost:5000,http://127.0.0.1:5001,http://localhost:5001
 LLM_PROVIDER=mock
 LLM_API_KEY=
-
-# Risk Scoring Thresholds
 RISK_THRESHOLD_LOW=30
 RISK_THRESHOLD_MEDIUM=60
 ```
-*(Default port is configured to `PORT=5001` to prevent collisions with existing Windows system services).*
 
-### 3. Launching the Backend Application
+> [!WARNING]
+> **Strict `SECRET_KEY` Policy (`backend/config.py` & `docker-compose.yml`):**
+> When `FLASK_ENV=production` or `FLASK_DEBUG=False`, startup aborts (`RuntimeError`, exit code `1`) if `SECRET_KEY` is missing, shorter than `16` characters, or matches a known placeholder (`KNOWN_INSECURE_SECRETS`). Both `app` and `worker` services in `docker-compose.yml` require `SECRET_KEY` without an insecure fallback.
+
+### 3. Sync vs. Async Intake, Task Queue, Worker & Health APIs
+
+#### Synchronous vs. Asynchronous Claim Submission (`POST /api/claims`)
+* **Asynchronous Intake:** Triggered via `POST /api/claims?async=true` or when `ASYNC_PROCESSING_ENABLED=true` (unless overridden by `?sync=true`). Immediately persists intake records and returns **`HTTP 202 Accepted`** with `task_id`, `status_url` (`/api/claims/<claim_id>/status`), and `receipt_url`.
+* **Synchronous Fallback:** When neither `?async=true` nor `ASYNC_PROCESSING_ENABLED=true` is active — or when `?sync=true` is passed — document extraction and YOLOv8 detection run inline during submission.
+* **Status & Retry Endpoints:** Poll `GET /api/claims/<claim_id>/status` for stage progression (`INTAKE` → `OCR_PROCESSING` → `DAMAGE_ANALYSIS` → `NLP_CHRONOLOGY` → `CROSS_SOURCE_VERIFICATION` → `REPORT_PERSISTENCE` → `COMPLETED`) and trigger manual retries on failed tasks via `POST /api/claims/<claim_id>/retry-task`.
+* **Frozen Report Snapshots:** `POST /api/claims/<claim_id>/freeze-report` persists an immutable SHA-256 PDF snapshot under `REPORTS_FOLDER`, served thereafter by `GET /api/claims/<claim_id>/document-report` (`x-report-source: persisted-snapshot`).
+
+#### Task Queue Brokers, Redis Fallback & Background Worker
+* **`TaskManager` (`backend/services/queue/manager.py`):** Selects `redis` (`RedisTaskBroker`, pushing JSON jobs to list key `claimsense:tasks:claims` via `RPUSH`) when `QUEUE_BROKER_TYPE` is `redis` or `auto` and `redis.Redis.from_url(...).ping()` succeeds.
+* **Automatic Threaded Fallback:** If the Python `redis` package is not installed or the Redis server is unreachable, `RedisTaskBroker` logs an explicit `WARNING` and `TaskManager` falls back automatically to `ThreadedTaskBroker` (`ThreadPoolExecutor`) with persistent SQLite task state (`processing_tasks` table). `TaskManager.recover_stale_tasks()` re-queues timed-out `PROCESSING` jobs through the active broker up to `TASK_MAX_RETRIES`.
+* **Standalone Worker CLI (`scripts/run_worker.py`):** Consumes Redis jobs with `BLPOP` when `--broker redis` (or `auto`) is active:
+```powershell
+python scripts/run_worker.py --broker auto --poll-interval 1.0
+```
+
+#### API Health & Telemetry Endpoints (`backend/routes/health.py`)
+| Method | Endpoint | Purpose |
+|:---:|:---|:---|
+| `GET` | `/api/health` | Basic application metadata, environment, and timestamp (`200`). |
+| `GET` | `/api/health/live` | Liveness probe with `uptime_seconds` (`200`), also polled by the UI status indicator. |
+| `GET` | `/api/health/ready` | Deep readiness probe (`200` / `503`) checking `database`, writable `storage_uploads`, `models/phase5/best.pt`, and `task_queue` broker health. |
+| `GET` | `/api/health/metrics` | Operational counts (`claims`, `users`), `memory_rss_mb`, platform info, and queue depth / task status counters. |
+
+### 4. Launching the Backend Application
 
 #### Option A: Local Development Server
 ```powershell
 python backend/app.py
 ```
-The Flask development server will boot on `http://127.0.0.1:5001`. Database tables and required upload directories are automatically initialized on startup.
+The Flask development server boots on `http://127.0.0.1:5000` (or the configured `PORT`). Database tables and required storage directories are initialized automatically on startup.
 
-#### Option B: Production WSGI Server (Phase 11)
+#### Option B: Standalone WSGI Server (Phase 11)
 ```powershell
-# Cross-platform runner (auto-detects Waitress on Windows, Gunicorn on Linux/macOS)
+# Cross-platform launcher (Waitress on Windows, Gunicorn on POSIX; falls back to Werkzeug if Waitress is absent)
 python scripts/serve_production.py --host 127.0.0.1 --port 5001 --threads 8
 ```
 
-#### Option C: Production Docker Compose Deployment (Phase 11)
+#### Option C: Docker Compose Deployment (Reference Configuration — Unverified Live on Local Windows Host)
 ```bash
-# Build and run multi-container stack with Nginx edge reverse proxy
+# Validate Compose config and start redis, app, worker, and nginx (requires strong SECRET_KEY in .env)
+docker compose config
 docker compose up -d --build
-
-# Verify container health probes
 docker compose ps
-curl http://localhost/api/health
+curl http://localhost/api/health/ready
 ```
+*(See **Known Limitations & Deployment Blockers** below regarding required TLS termination in `deploy/nginx/conf.d/claimsense.conf` and unverified live container/Redis execution on this workstation.)*
 
-### 4. Accessing the Assessor Web Dashboard
-Open any modern web browser and navigate to:
-```text
-http://127.0.0.1:5001/
-```
-The web dashboard provides user authentication, claim submission, policy lookup, interactive damage overlays, and the Phase 7 Cross-Source Verification panel.
+### 5. Accessing the Assessor Web Dashboard
+Open a browser against the running server URL (same-origin `/api/health/live` polling works on any host/port, e.g., `http://127.0.0.1:5001/` or `http://127.0.0.1:5055/`; optionally set `window.CLAIMSENSE_API_BASE` or `<meta name="api-base">` if decoupling frontend hosting).
 
-### 5. Running the Automated Test Suite & Load Benchmarks
+### 6. Running the Automated Test Suite & Load Benchmarks
 
-#### Standard Regression & Integration Test Execution
-Execute the automated test suite within the active virtual environment using either `pytest` or Python's standard `unittest` test discovery:
+#### Isolated Regression & Integration Test Execution
+To ensure tests never touch local development databases, uploads, or reports, set isolated environment paths before invoking `pytest`:
 
 ```powershell
-# Run the complete test suite via pytest (compact execution)
-python -m pytest -q
+# Run full isolated test suite (236 tests + 1 isolated SECRET_KEY startup subprocess test = 237 passed, 1 skipped)
+pytest tests/ -k "not test_production_startup_failure_with_insecure_secret" -q
+pytest tests/test_security.py -k "test_production_startup_failure_with_insecure_secret" -v
 
-# Run the master Phase 10 E2E integration test suite (13 comprehensive workflows)
-python -m pytest tests/test_e2e.py -v
-
-# Run the load testing harness validation suite (5 unit tests)
-python -m pytest tests/test_load_validation.py -v
-
-# Or execute full discovery via Python unittest
-python -m unittest discover -s tests -p "test_*.py" -v
+# Focused Phase 9.20, Phase 11, Phase 12 & Frontend suites
+pytest tests/test_per_class_thresholds.py -v
+pytest tests/test_integration_phase12_phase920.py -v
+pytest tests/test_ui_redesign.py -v
 ```
 
-**Verified Test Execution Status:**
-- **Standard Discovery (`unittest` / `pytest tests/`):** **191 tests verified &mdash; 190 passed, 1 skipped, 0 failures, 0 errors (100% pass rate)** across all 15 test modules.
-- **Repository-Wide Pytest Discovery (`pytest -q`):** **201 passed, 1 skipped, 0 failures, 0 errors** (including 10 standalone redaction script unit tests).
-- *(1 skipped test: `test_phase5_vision.py::test_gpu_tensor_execution` cleanly skipped on CPU-only workstations when CUDA GPU is unavailable).*
+**Latest Verified Isolated Test & Acceptance Status (Branch `integration/phase12-phase920`):**
+- **Combined Isolated Suite (20 modules, 238 collected):** **237 passed, 1 skipped, 0 failed, 0 errors** (`236 passed, 1 skipped` in main isolated run + `1 passed` in `test_production_startup_failure_with_insecure_secret`; the 1 skipped test is `test_phase5_vision.py::Phase5VisionTestSuite::test_kcm0_history_and_integrity_preserved` when optional historical KCM0 DB records are absent).
+- **Verified Locally:** Isolated `pytest` suite (including mocked `RedisTaskBroker`), Node.js v22 `vm` UI verification (`8/8` in `test_ui_redesign.py`), static `yaml.safe_load()` validation of `docker-compose.yml`, `SECRET_KEY` startup failure rejection (`rc=1`), live isolated HTTP/WSGI checks (via Werkzeug fallback), and live isolated Chromium E2E workflow (`http://127.0.0.1:5055/` with `ThreadedTaskBroker`, 4-file submission, async polling, YOLOv8 overlay, and frozen PDF verification).
+- **NOT Verified Live (Host Tooling Blockers):** Live `docker compose build`/`up`, multi-container networking, live `redis-server` dispatch/recovery, and Waitress/Gunicorn runtime execution remain **unverified** on the Windows development host due to absent Docker/WSL, local Redis daemon/`redis` package, and `waitress`. Do not treat this repository state as production-certified without staging validation.
 
 #### Automated Multi-User Concurrency & Load Testing (Phase 10 Stage 2)
 The load testing harness uses Locust to simulate authenticated multi-user workloads against an isolated test server:
@@ -688,6 +718,14 @@ Comprehensive engineering, audit, and benchmark records across all development p
   * [Phase 10 Stage 2 Report Persistence Architectural Decision](runs/phase10/stage2_database_architecture_decision.md) &mdash; Formal ADR evaluating Report ORM persistence (Option A vs Option B), recommending a Hybrid Two-Tier lifecycle, with DDL migration and rollback specifications.
   * [Phase 10 Stage 1 Remediation Report](runs/phase10/stage1_remediation_report.md) &mdash; Master E2E integration test verification (186/186 passed), scratch test .gitignore investigation, ML crack retraining workstream disambiguation, and conditional completion audit.
 
+* **Phase 9.19 – 9.20 Advanced Detection Research & Forensic Verification:**
+  * [Phase 9.20 Master Forensic Verification Report](runs/phase9_20/forensic_verification/phase9_20_forensic_verification.md) &mdash; Comprehensive forensic audit across all 6 GPU runs, benchmarks, and production safety invariants.
+  * [Phase 9.20 Final Model Governance Decision](runs/phase9_20/forensic_verification/final_governance_decision.md) &mdash; Formal 5-gate audit sign-off (*RESEARCH COMPLETE, NO PROMOTION*).
+  * [Phase 9.20 Benchmark Provenance & Zero-Leakage Audit](runs/phase9_20/forensic_verification/benchmark_provenance_verification.md) &mdash; 164-image virgin suite provenance (`67c58284...`) and quarantine enforcement.
+  * [Phase 9.20 Production Code & Asset Safety Audit](runs/phase9_20/forensic_verification/production_code_safety_audit.md) &mdash; Byte-exact verification of `best.pt`, `claimsense.db`, and `damage_detector.py`.
+  * [Phase 9.20 Final Execution Report](runs/phase9_20/reports/phase9_20_final_report.md) &mdash; Master summary of Stages 1–4 execution.
+  * [Per-Class Threshold Architecture Design](runs/phase9_20/architecture/per_class_threshold_design.md) &mdash; Opt-in per-class threshold architecture and backward-compatibility specification.
+
 * **Phase 9.12 – 9.18 Complete ML Accuracy Improvement Program:**
   * [Complete ML Accuracy Improvement Program Master Report](runs/ml_accuracy_program_final_report.md) &mdash; Master synthesis, mathematical IoU boundary proof, multi-scale GPU retraining, and promotion governance verdict.
   * [Phase 9.12 Crack & Scratch Forensic Retraining Final Report](runs/phase9_12/phase9_12_final_report.md) &mdash; Forensic evaluation, CarDD_Expanded_v1 GPU retraining, and test split evaluation.
@@ -739,6 +777,11 @@ Comprehensive engineering, audit, and benchmark records across all development p
 5. **Inconclusive Findings Require Human Judgment:** When evidence sources conflict or are missing, human examiners must inspect original documentation rather than assuming fraudulent intent.
 6. **Phase 9 Model Retention & Production Checkpoint Invariance:** Following extensive Phase 9 evaluation on the CarDD independent benchmark, Candidate P9-T02 demonstrated precision gains (+85.2%) but failed the zero-tolerance operational crack recall criterion (0/13 detections at $\tau=0.25$) and exhibited recall regressions on dents and scratches. In accordance with strict governance rules against aggregate metric masking, Candidate P9-T02 was rejected and the verified Phase 5 production baseline (`models/phase5/best.pt`) was officially retained.
 7. **EXP02 Model Quarantine & Inactive Trial Status:** Candidate model EXP02 is experimental and unpromoted; it does not operate in live shadow mode. Its 0.0% structural crack recall prevents its deployment for live claim determinations. The live 14-day shadow trial has not been initiated, and the background shadow worker remains completely stopped and disabled awaiting explicit human authorization.
+8. **Phase 9.20 Research Closure & Phase 9.21 Hold:** Candidate checkpoints `EXP20-01`–`EXP20-06` failed promotion gates on the 164-image virgin benchmark and were not promoted (`models/phase5/best.pt` remains active). Phase 9.21 (SAHI tiling & polygon segmentation) remains **ON HOLD**.
+9. **Pre-Deployment Infrastructure Blockers (`runs/integration_acceptance_2026_11_25/pre_deployment_blockers.md`):**
+   - **Nginx HTTP-Only Config vs. Secure Session Cookies:** `docker-compose.yml` exposes `443:443` and enables `FLASK_ENV=production` (`SESSION_COOKIE_SECURE=True`), but `deploy/nginx/conf.d/claimsense.conf` currently configures HTTP `:80` only without TLS certificates, HTTPS `server` block, HTTPS `CORS_ALLOWED_ORIGINS`, or `ProxyFix` middleware.
+   - **Unverified Live Container / Redis / Waitress Runtimes:** Docker Compose builds, live Redis queue/worker execution, and Waitress/Gunicorn serving could not run on the local Windows workstation and must be executed in a Docker/Linux staging environment before any production deployment.
+   - **Non-Blocking UI Polish Backlog:** Browser E2E surfaced minor UI polish items (`lbl_claimant_statement` translation key, summary card `Incident Location`, modal column wrapping, badge truncation, and pre-analysis `/nlp-analysis` 404 on modal open).
 
 ---
 

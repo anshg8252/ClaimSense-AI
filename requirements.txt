@@ -23,3 +23,7 @@ numpy>=1.26.0,<3.0.0
 ultralytics>=8.0.0
 torch>=2.0.0
 torchvision>=0.15.0
+
+# Phase 12: Asynchronous Task Queue & Operational Telemetry
+redis>=5.0.0,<6.0.0
+psutil>=5.9.0,<8.0.0

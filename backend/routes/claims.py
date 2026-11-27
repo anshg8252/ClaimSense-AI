@@ -739,7 +739,8 @@ def freeze_claim_report(claim_id: str):
             claim_id=claim_id,
             user_id=user_id,
             report_type="VERIFICATION_AUDIT",
-            upload_root=current_app.config.get("REPORTS_FOLDER"),
+            upload_root=current_app.config.get("UPLOAD_FOLDER"),
+            reports_root=current_app.config.get("REPORTS_FOLDER"),
         )
         if not report_meta:
             return jsonify({
@@ -1255,12 +1256,55 @@ def analyze_claim_vehicle_damage(claim_id: str):
                 "requires_replacement": True,
             }), 400
 
-        # Allow confidence threshold override and fallback mode from JSON or query params
-        req_json = request.get_json(silent=True) or {}
-        try:
-            conf_thresh = float(req_json.get("conf_threshold") or request.args.get("conf", 0.15))
-        except (TypeError, ValueError):
+        # Allow confidence threshold override (scalar or per-class dict) and fallback mode from JSON or query params
+        req_json = request.get_json(silent=True)
+        if req_json is None:
+            req_json = {}
+        elif not isinstance(req_json, dict):
+            return jsonify({
+                "success": False,
+                "error": "Validation Error",
+                "message": "Request JSON body must be an object.",
+            }), 400
+
+        if "conf_threshold" in req_json and req_json["conf_threshold"] is not None:
+            raw_conf = req_json["conf_threshold"]
+            if isinstance(raw_conf, bool):
+                return jsonify({
+                    "success": False,
+                    "error": "Invalid Threshold",
+                    "message": "conf_threshold must be a numeric scalar or per-class dictionary, got bool.",
+                }), 400
+            if isinstance(raw_conf, dict):
+                conf_thresh = raw_conf
+            elif isinstance(raw_conf, (int, float)):
+                conf_thresh = float(raw_conf)
+            else:
+                return jsonify({
+                    "success": False,
+                    "error": "Invalid Threshold",
+                    "message": f"conf_threshold must be a numeric scalar or per-class dictionary, got {type(raw_conf).__name__}.",
+                }), 400
+        elif "conf" in request.args and str(request.args.get("conf", "")).strip() != "":
+            try:
+                conf_thresh = float(request.args.get("conf"))
+            except (TypeError, ValueError):
+                return jsonify({
+                    "success": False,
+                    "error": "Invalid Threshold",
+                    "message": f"Query parameter 'conf' must be a numeric value between 0.0 and 1.0.",
+                }), 400
+        else:
             conf_thresh = 0.15
+
+        try:
+            VehicleDamageDetector.get_instance()._resolve_conf_thresholds(conf_thresh)
+        except (ValueError, TypeError) as thresh_exc:
+            return jsonify({
+                "success": False,
+                "error": "Invalid Threshold",
+                "message": str(thresh_exc),
+            }), 400
 
         force_fallback = bool(req_json.get("force_opencv") or req_json.get("fallback") or request.args.get("fallback") == "true")
         force_recompute = bool(

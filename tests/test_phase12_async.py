@@ -420,11 +420,17 @@ class TestPhase12AsyncProcessing(unittest.TestCase):
 
     # 11. Worker CLI Single-Run Execution
     def test_11_worker_cli_single_run(self):
-        """Verify run_worker.py executes cleanly in single-run mode."""
+        """Verify run_worker.py executes cleanly in single-run mode against isolated DB."""
         from scripts.run_worker import run_worker_loop
 
-        # Should execute cleanly and terminate without uncaught exceptions
-        run_worker_loop(broker_type="threaded", poll_interval=0.1, single_run=True)
+        with patch.object(Config, "UPLOAD_FOLDER", self.test_uploads_dir), \
+             patch.object(Config, "REPORTS_FOLDER", self.test_reports_dir):
+            run_worker_loop(
+                broker_type="threaded",
+                poll_interval=0.1,
+                single_run=True,
+                db_uri=self.test_config.SQLALCHEMY_DATABASE_URI,
+            )
 
 
 if __name__ == "__main__":

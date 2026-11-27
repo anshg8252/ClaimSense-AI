@@ -32,7 +32,7 @@ class Config:
     BACKEND_DIR = BASE_DIR / "backend"
     FRONTEND_DIR = BASE_DIR / "frontend"
     UPLOAD_FOLDER = BASE_DIR / os.getenv("UPLOAD_FOLDER", "uploads")
-    REPORTS_FOLDER = BASE_DIR / "reports"
+    REPORTS_FOLDER = BASE_DIR / os.getenv("REPORTS_FOLDER", "reports")
     DATA_FOLDER = BASE_DIR / "data"
 
     # Environment & Debug settings

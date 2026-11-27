@@ -1,0 +1,141 @@
+model_name,split,threshold_mode,class_name,class_id,threshold,tp,fp,fn,gt,precision,recall,f1,map50,map50_95,mean_latency_ms
+BASELINE_Phase5,validation_cardd_val,fixed_tau_0.25,OVERALL,ALL,0.25,27,3344,113,140,0.008,0.1929,0.0154,0.0026,0.0007,278.41
+BASELINE_Phase5,validation_cardd_val,fixed_tau_0.25,dent,0,0.25,23,2204,21,44,0.0103,0.5227,0.0203,N/A,N/A,278.41
+BASELINE_Phase5,validation_cardd_val,fixed_tau_0.25,scratch,1,0.25,0,3,60,60,0.0,0.0,0.0,N/A,N/A,278.41
+BASELINE_Phase5,validation_cardd_val,fixed_tau_0.25,crack,2,0.25,1,514,10,11,0.0019,0.0909,0.0038,N/A,N/A,278.41
+BASELINE_Phase5,validation_cardd_val,fixed_tau_0.25,glass shatter,3,0.25,1,287,9,10,0.0035,0.1,0.0067,N/A,N/A,278.41
+BASELINE_Phase5,validation_cardd_val,fixed_tau_0.25,lamp broken,4,0.25,2,336,8,10,0.0059,0.2,0.0115,N/A,N/A,278.41
+BASELINE_Phase5,validation_cardd_val,fixed_tau_0.25,tire flat,5,0.25,0,0,5,5,0.0,0.0,0.0,N/A,N/A,278.41
+BASELINE_Phase5,validation_cardd_val,calibrated_per_class,OVERALL,ALL,mixed,27,3670,113,140,0.0073,0.1929,0.0141,0.0028,0.0007,81.55
+BASELINE_Phase5,validation_cardd_val,calibrated_per_class,dent,0,0.18,23,2516,21,44,0.0091,0.5227,0.0178,N/A,N/A,81.55
+BASELINE_Phase5,validation_cardd_val,calibrated_per_class,scratch,1,0.28,0,3,60,60,0.0,0.0,0.0,N/A,N/A,81.55
+BASELINE_Phase5,validation_cardd_val,calibrated_per_class,crack,2,0.25,1,514,10,11,0.0019,0.0909,0.0038,N/A,N/A,81.55
+BASELINE_Phase5,validation_cardd_val,calibrated_per_class,glass shatter,3,0.22,1,301,9,10,0.0033,0.1,0.0064,N/A,N/A,81.55
+BASELINE_Phase5,validation_cardd_val,calibrated_per_class,lamp broken,4,0.25,2,336,8,10,0.0059,0.2,0.0115,N/A,N/A,81.55
+BASELINE_Phase5,validation_cardd_val,calibrated_per_class,tire flat,5,0.25,0,0,5,5,0.0,0.0,0.0,N/A,N/A,81.55
+P920_EXP01_loss_rebalance,validation_cardd_val,fixed_tau_0.25,OVERALL,ALL,0.25,45,38,95,140,0.5422,0.3214,0.4036,0.443,0.3266,58.56
+P920_EXP01_loss_rebalance,validation_cardd_val,fixed_tau_0.25,dent,0,0.25,15,13,29,44,0.5357,0.3409,0.4167,N/A,N/A,58.56
+P920_EXP01_loss_rebalance,validation_cardd_val,fixed_tau_0.25,scratch,1,0.25,10,11,50,60,0.4762,0.1667,0.2469,N/A,N/A,58.56
+P920_EXP01_loss_rebalance,validation_cardd_val,fixed_tau_0.25,crack,2,0.25,1,2,10,11,0.3333,0.0909,0.1429,N/A,N/A,58.56
+P920_EXP01_loss_rebalance,validation_cardd_val,fixed_tau_0.25,glass shatter,3,0.25,7,1,3,10,0.875,0.7,0.7778,N/A,N/A,58.56
+P920_EXP01_loss_rebalance,validation_cardd_val,fixed_tau_0.25,lamp broken,4,0.25,7,9,3,10,0.4375,0.7,0.5385,N/A,N/A,58.56
+P920_EXP01_loss_rebalance,validation_cardd_val,fixed_tau_0.25,tire flat,5,0.25,5,2,0,5,0.7143,1.0,0.8333,N/A,N/A,58.56
+P920_EXP01_loss_rebalance,validation_cardd_val,calibrated_per_class,OVERALL,ALL,mixed,42,44,98,140,0.4884,0.3,0.3717,0.4658,0.3421,57.14
+P920_EXP01_loss_rebalance,validation_cardd_val,calibrated_per_class,dent,0,0.18,16,19,28,44,0.4571,0.3636,0.4051,N/A,N/A,57.14
+P920_EXP01_loss_rebalance,validation_cardd_val,calibrated_per_class,scratch,1,0.28,6,11,54,60,0.3529,0.1,0.1558,N/A,N/A,57.14
+P920_EXP01_loss_rebalance,validation_cardd_val,calibrated_per_class,crack,2,0.25,1,2,10,11,0.3333,0.0909,0.1429,N/A,N/A,57.14
+P920_EXP01_loss_rebalance,validation_cardd_val,calibrated_per_class,glass shatter,3,0.22,7,1,3,10,0.875,0.7,0.7778,N/A,N/A,57.14
+P920_EXP01_loss_rebalance,validation_cardd_val,calibrated_per_class,lamp broken,4,0.25,7,9,3,10,0.4375,0.7,0.5385,N/A,N/A,57.14
+P920_EXP01_loss_rebalance,validation_cardd_val,calibrated_per_class,tire flat,5,0.25,5,2,0,5,0.7143,1.0,0.8333,N/A,N/A,57.14
+P920_EXP02_box_refinement,validation_cardd_val,fixed_tau_0.25,OVERALL,ALL,0.25,43,49,97,140,0.4674,0.3071,0.3707,0.4579,0.3505,56.15
+P920_EXP02_box_refinement,validation_cardd_val,fixed_tau_0.25,dent,0,0.25,10,11,34,44,0.4762,0.2273,0.3077,N/A,N/A,56.15
+P920_EXP02_box_refinement,validation_cardd_val,fixed_tau_0.25,scratch,1,0.25,11,15,49,60,0.4231,0.1833,0.2558,N/A,N/A,56.15
+P920_EXP02_box_refinement,validation_cardd_val,fixed_tau_0.25,crack,2,0.25,2,10,9,11,0.1667,0.1818,0.1739,N/A,N/A,56.15
+P920_EXP02_box_refinement,validation_cardd_val,fixed_tau_0.25,glass shatter,3,0.25,8,1,2,10,0.8889,0.8,0.8421,N/A,N/A,56.15
+P920_EXP02_box_refinement,validation_cardd_val,fixed_tau_0.25,lamp broken,4,0.25,7,8,3,10,0.4667,0.7,0.56,N/A,N/A,56.15
+P920_EXP02_box_refinement,validation_cardd_val,fixed_tau_0.25,tire flat,5,0.25,5,4,0,5,0.5556,1.0,0.7143,N/A,N/A,56.15
+P920_EXP02_box_refinement,validation_cardd_val,calibrated_per_class,OVERALL,ALL,mixed,46,56,94,140,0.451,0.3286,0.3802,0.4619,0.3514,44.53
+P920_EXP02_box_refinement,validation_cardd_val,calibrated_per_class,dent,0,0.18,14,20,30,44,0.4118,0.3182,0.359,N/A,N/A,44.53
+P920_EXP02_box_refinement,validation_cardd_val,calibrated_per_class,scratch,1,0.28,10,13,50,60,0.4348,0.1667,0.241,N/A,N/A,44.53
+P920_EXP02_box_refinement,validation_cardd_val,calibrated_per_class,crack,2,0.25,2,10,9,11,0.1667,0.1818,0.1739,N/A,N/A,44.53
+P920_EXP02_box_refinement,validation_cardd_val,calibrated_per_class,glass shatter,3,0.22,8,1,2,10,0.8889,0.8,0.8421,N/A,N/A,44.53
+P920_EXP02_box_refinement,validation_cardd_val,calibrated_per_class,lamp broken,4,0.25,7,8,3,10,0.4667,0.7,0.56,N/A,N/A,44.53
+P920_EXP02_box_refinement,validation_cardd_val,calibrated_per_class,tire flat,5,0.25,5,4,0,5,0.5556,1.0,0.7143,N/A,N/A,44.53
+P920_EXP03_hires_704,validation_cardd_val,fixed_tau_0.25,OVERALL,ALL,0.25,50,61,90,140,0.4505,0.3571,0.3984,0.4363,0.3326,59.31
+P920_EXP03_hires_704,validation_cardd_val,fixed_tau_0.25,dent,0,0.25,18,20,26,44,0.4737,0.4091,0.439,N/A,N/A,59.31
+P920_EXP03_hires_704,validation_cardd_val,fixed_tau_0.25,scratch,1,0.25,10,19,50,60,0.3448,0.1667,0.2247,N/A,N/A,59.31
+P920_EXP03_hires_704,validation_cardd_val,fixed_tau_0.25,crack,2,0.25,3,5,8,11,0.375,0.2727,0.3158,N/A,N/A,59.31
+P920_EXP03_hires_704,validation_cardd_val,fixed_tau_0.25,glass shatter,3,0.25,8,1,2,10,0.8889,0.8,0.8421,N/A,N/A,59.31
+P920_EXP03_hires_704,validation_cardd_val,fixed_tau_0.25,lamp broken,4,0.25,6,11,4,10,0.3529,0.6,0.4444,N/A,N/A,59.31
+P920_EXP03_hires_704,validation_cardd_val,fixed_tau_0.25,tire flat,5,0.25,5,5,0,5,0.5,1.0,0.6667,N/A,N/A,59.31
+P920_EXP03_hires_704,validation_cardd_val,calibrated_per_class,OVERALL,ALL,mixed,50,64,90,140,0.4386,0.3571,0.3937,0.4452,0.3375,76.19
+P920_EXP03_hires_704,validation_cardd_val,calibrated_per_class,dent,0,0.18,18,26,26,44,0.4091,0.4091,0.4091,N/A,N/A,76.19
+P920_EXP03_hires_704,validation_cardd_val,calibrated_per_class,scratch,1,0.28,10,16,50,60,0.3846,0.1667,0.2326,N/A,N/A,76.19
+P920_EXP03_hires_704,validation_cardd_val,calibrated_per_class,crack,2,0.25,3,5,8,11,0.375,0.2727,0.3158,N/A,N/A,76.19
+P920_EXP03_hires_704,validation_cardd_val,calibrated_per_class,glass shatter,3,0.22,8,1,2,10,0.8889,0.8,0.8421,N/A,N/A,76.19
+P920_EXP03_hires_704,validation_cardd_val,calibrated_per_class,lamp broken,4,0.25,6,11,4,10,0.3529,0.6,0.4444,N/A,N/A,76.19
+P920_EXP03_hires_704,validation_cardd_val,calibrated_per_class,tire flat,5,0.25,5,5,0,5,0.5,1.0,0.6667,N/A,N/A,76.19
+P920_EXP04_phase5_finetune,validation_cardd_val,fixed_tau_0.25,OVERALL,ALL,0.25,39,45,101,140,0.4643,0.2786,0.3482,0.375,0.2619,77.81
+P920_EXP04_phase5_finetune,validation_cardd_val,fixed_tau_0.25,dent,0,0.25,10,12,34,44,0.4545,0.2273,0.303,N/A,N/A,77.81
+P920_EXP04_phase5_finetune,validation_cardd_val,fixed_tau_0.25,scratch,1,0.25,12,17,48,60,0.4138,0.2,0.2697,N/A,N/A,77.81
+P920_EXP04_phase5_finetune,validation_cardd_val,fixed_tau_0.25,crack,2,0.25,1,6,10,11,0.1429,0.0909,0.1111,N/A,N/A,77.81
+P920_EXP04_phase5_finetune,validation_cardd_val,fixed_tau_0.25,glass shatter,3,0.25,7,1,3,10,0.875,0.7,0.7778,N/A,N/A,77.81
+P920_EXP04_phase5_finetune,validation_cardd_val,fixed_tau_0.25,lamp broken,4,0.25,5,7,5,10,0.4167,0.5,0.4545,N/A,N/A,77.81
+P920_EXP04_phase5_finetune,validation_cardd_val,fixed_tau_0.25,tire flat,5,0.25,4,2,1,5,0.6667,0.8,0.7273,N/A,N/A,77.81
+P920_EXP04_phase5_finetune,validation_cardd_val,calibrated_per_class,OVERALL,ALL,mixed,42,44,98,140,0.4884,0.3,0.3717,0.3891,0.269,74.71
+P920_EXP04_phase5_finetune,validation_cardd_val,calibrated_per_class,dent,0,0.18,14,13,30,44,0.5185,0.3182,0.3944,N/A,N/A,74.71
+P920_EXP04_phase5_finetune,validation_cardd_val,calibrated_per_class,scratch,1,0.28,11,14,49,60,0.44,0.1833,0.2588,N/A,N/A,74.71
+P920_EXP04_phase5_finetune,validation_cardd_val,calibrated_per_class,crack,2,0.25,1,6,10,11,0.1429,0.0909,0.1111,N/A,N/A,74.71
+P920_EXP04_phase5_finetune,validation_cardd_val,calibrated_per_class,glass shatter,3,0.22,7,2,3,10,0.7778,0.7,0.7368,N/A,N/A,74.71
+P920_EXP04_phase5_finetune,validation_cardd_val,calibrated_per_class,lamp broken,4,0.25,5,7,5,10,0.4167,0.5,0.4545,N/A,N/A,74.71
+P920_EXP04_phase5_finetune,validation_cardd_val,calibrated_per_class,tire flat,5,0.25,4,2,1,5,0.6667,0.8,0.7273,N/A,N/A,74.71
+P920_EXP05_hires_finetune,validation_cardd_val,fixed_tau_0.25,OVERALL,ALL,0.25,36,50,104,140,0.4186,0.2571,0.3186,0.3992,0.2733,97.12
+P920_EXP05_hires_finetune,validation_cardd_val,fixed_tau_0.25,dent,0,0.25,11,20,33,44,0.3548,0.25,0.2933,N/A,N/A,97.12
+P920_EXP05_hires_finetune,validation_cardd_val,fixed_tau_0.25,scratch,1,0.25,6,16,54,60,0.2727,0.1,0.1463,N/A,N/A,97.12
+P920_EXP05_hires_finetune,validation_cardd_val,fixed_tau_0.25,crack,2,0.25,1,0,10,11,1.0,0.0909,0.1667,N/A,N/A,97.12
+P920_EXP05_hires_finetune,validation_cardd_val,fixed_tau_0.25,glass shatter,3,0.25,8,4,2,10,0.6667,0.8,0.7273,N/A,N/A,97.12
+P920_EXP05_hires_finetune,validation_cardd_val,fixed_tau_0.25,lamp broken,4,0.25,5,8,5,10,0.3846,0.5,0.4348,N/A,N/A,97.12
+P920_EXP05_hires_finetune,validation_cardd_val,fixed_tau_0.25,tire flat,5,0.25,5,2,0,5,0.7143,1.0,0.8333,N/A,N/A,97.12
+P920_EXP05_hires_finetune,validation_cardd_val,calibrated_per_class,OVERALL,ALL,mixed,36,55,104,140,0.3956,0.2571,0.3117,0.4118,0.282,71.83
+P920_EXP05_hires_finetune,validation_cardd_val,calibrated_per_class,dent,0,0.18,12,27,32,44,0.3077,0.2727,0.2892,N/A,N/A,71.83
+P920_EXP05_hires_finetune,validation_cardd_val,calibrated_per_class,scratch,1,0.28,5,14,55,60,0.2632,0.0833,0.1266,N/A,N/A,71.83
+P920_EXP05_hires_finetune,validation_cardd_val,calibrated_per_class,crack,2,0.25,1,0,10,11,1.0,0.0909,0.1667,N/A,N/A,71.83
+P920_EXP05_hires_finetune,validation_cardd_val,calibrated_per_class,glass shatter,3,0.22,8,4,2,10,0.6667,0.8,0.7273,N/A,N/A,71.83
+P920_EXP05_hires_finetune,validation_cardd_val,calibrated_per_class,lamp broken,4,0.25,5,8,5,10,0.3846,0.5,0.4348,N/A,N/A,71.83
+P920_EXP05_hires_finetune,validation_cardd_val,calibrated_per_class,tire flat,5,0.25,5,2,0,5,0.7143,1.0,0.8333,N/A,N/A,71.83
+P920_EXP06_regularized,validation_cardd_val,fixed_tau_0.25,OVERALL,ALL,0.25,45,53,95,140,0.4592,0.3214,0.3782,0.4188,0.3227,72.28
+P920_EXP06_regularized,validation_cardd_val,fixed_tau_0.25,dent,0,0.25,15,19,29,44,0.4412,0.3409,0.3846,N/A,N/A,72.28
+P920_EXP06_regularized,validation_cardd_val,fixed_tau_0.25,scratch,1,0.25,10,17,50,60,0.3704,0.1667,0.2299,N/A,N/A,72.28
+P920_EXP06_regularized,validation_cardd_val,fixed_tau_0.25,crack,2,0.25,1,10,10,11,0.0909,0.0909,0.0909,N/A,N/A,72.28
+P920_EXP06_regularized,validation_cardd_val,fixed_tau_0.25,glass shatter,3,0.25,8,0,2,10,1.0,0.8,0.8889,N/A,N/A,72.28
+P920_EXP06_regularized,validation_cardd_val,fixed_tau_0.25,lamp broken,4,0.25,6,5,4,10,0.5455,0.6,0.5714,N/A,N/A,72.28
+P920_EXP06_regularized,validation_cardd_val,fixed_tau_0.25,tire flat,5,0.25,5,2,0,5,0.7143,1.0,0.8333,N/A,N/A,72.28
+P920_EXP06_regularized,validation_cardd_val,calibrated_per_class,OVERALL,ALL,mixed,46,59,94,140,0.4381,0.3286,0.3755,0.426,0.3261,39.71
+P920_EXP06_regularized,validation_cardd_val,calibrated_per_class,dent,0,0.18,16,24,28,44,0.4,0.3636,0.381,N/A,N/A,39.71
+P920_EXP06_regularized,validation_cardd_val,calibrated_per_class,scratch,1,0.28,10,16,50,60,0.3846,0.1667,0.2326,N/A,N/A,39.71
+P920_EXP06_regularized,validation_cardd_val,calibrated_per_class,crack,2,0.25,1,10,10,11,0.0909,0.0909,0.0909,N/A,N/A,39.71
+P920_EXP06_regularized,validation_cardd_val,calibrated_per_class,glass shatter,3,0.22,8,2,2,10,0.8,0.8,0.8,N/A,N/A,39.71
+P920_EXP06_regularized,validation_cardd_val,calibrated_per_class,lamp broken,4,0.25,6,5,4,10,0.5455,0.6,0.5714,N/A,N/A,39.71
+P920_EXP06_regularized,validation_cardd_val,calibrated_per_class,tire flat,5,0.25,5,2,0,5,0.7143,1.0,0.8333,N/A,N/A,39.71
+BASELINE_Phase5,virgin_benchmark_164,fixed_tau_0.25,OVERALL,ALL,0.25,13,17488,109,122,0.0007,0.1066,0.0015,0.0004,0.0001,271.06
+BASELINE_Phase5,virgin_benchmark_164,fixed_tau_0.25,dent,0,0.25,12,10264,10,22,0.0012,0.5455,0.0023,N/A,N/A,271.06
+BASELINE_Phase5,virgin_benchmark_164,fixed_tau_0.25,scratch,1,0.25,0,30,13,13,0.0,0.0,0.0,N/A,N/A,271.06
+BASELINE_Phase5,virgin_benchmark_164,fixed_tau_0.25,crack,2,0.25,0,3745,9,9,0.0,0.0,0.0,N/A,N/A,271.06
+BASELINE_Phase5,virgin_benchmark_164,fixed_tau_0.25,glass shatter,3,0.25,1,1164,12,13,0.0009,0.0769,0.0017,N/A,N/A,271.06
+BASELINE_Phase5,virgin_benchmark_164,fixed_tau_0.25,lamp broken,4,0.25,0,2282,31,31,0.0,0.0,0.0,N/A,N/A,271.06
+BASELINE_Phase5,virgin_benchmark_164,fixed_tau_0.25,tire flat,5,0.25,0,3,34,34,0.0,0.0,0.0,N/A,N/A,271.06
+BASELINE_Phase5,virgin_benchmark_164,calibrated_per_class,OVERALL,ALL,mixed,13,18894,109,122,0.0007,0.1066,0.0014,0.0004,0.0001,176.81
+BASELINE_Phase5,virgin_benchmark_164,calibrated_per_class,dent,0,0.18,12,11642,10,22,0.001,0.5455,0.0021,N/A,N/A,176.81
+BASELINE_Phase5,virgin_benchmark_164,calibrated_per_class,scratch,1,0.28,0,27,13,13,0.0,0.0,0.0,N/A,N/A,176.81
+BASELINE_Phase5,virgin_benchmark_164,calibrated_per_class,crack,2,0.25,0,3745,9,9,0.0,0.0,0.0,N/A,N/A,176.81
+BASELINE_Phase5,virgin_benchmark_164,calibrated_per_class,glass shatter,3,0.22,1,1195,12,13,0.0008,0.0769,0.0017,N/A,N/A,176.81
+BASELINE_Phase5,virgin_benchmark_164,calibrated_per_class,lamp broken,4,0.25,0,2282,31,31,0.0,0.0,0.0,N/A,N/A,176.81
+BASELINE_Phase5,virgin_benchmark_164,calibrated_per_class,tire flat,5,0.25,0,3,34,34,0.0,0.0,0.0,N/A,N/A,176.81
+P920_EXP01_loss_rebalance,virgin_benchmark_164,fixed_tau_0.25,OVERALL,ALL,0.25,1,245,121,122,0.0041,0.0082,0.0054,0.0003,0.0,166.3
+P920_EXP01_loss_rebalance,virgin_benchmark_164,fixed_tau_0.25,dent,0,0.25,0,36,22,22,0.0,0.0,0.0,N/A,N/A,166.3
+P920_EXP01_loss_rebalance,virgin_benchmark_164,fixed_tau_0.25,scratch,1,0.25,0,61,13,13,0.0,0.0,0.0,N/A,N/A,166.3
+P920_EXP01_loss_rebalance,virgin_benchmark_164,fixed_tau_0.25,crack,2,0.25,0,32,9,9,0.0,0.0,0.0,N/A,N/A,166.3
+P920_EXP01_loss_rebalance,virgin_benchmark_164,fixed_tau_0.25,glass shatter,3,0.25,0,40,13,13,0.0,0.0,0.0,N/A,N/A,166.3
+P920_EXP01_loss_rebalance,virgin_benchmark_164,fixed_tau_0.25,lamp broken,4,0.25,1,29,30,31,0.0333,0.0323,0.0328,N/A,N/A,166.3
+P920_EXP01_loss_rebalance,virgin_benchmark_164,fixed_tau_0.25,tire flat,5,0.25,0,47,34,34,0.0,0.0,0.0,N/A,N/A,166.3
+P920_EXP01_loss_rebalance,virgin_benchmark_164,calibrated_per_class,OVERALL,ALL,mixed,1,260,121,122,0.0038,0.0082,0.0052,0.0003,0.0,89.11
+P920_EXP01_loss_rebalance,virgin_benchmark_164,calibrated_per_class,dent,0,0.18,0,54,22,22,0.0,0.0,0.0,N/A,N/A,89.11
+P920_EXP01_loss_rebalance,virgin_benchmark_164,calibrated_per_class,scratch,1,0.28,0,52,13,13,0.0,0.0,0.0,N/A,N/A,89.11
+P920_EXP01_loss_rebalance,virgin_benchmark_164,calibrated_per_class,crack,2,0.25,0,32,9,9,0.0,0.0,0.0,N/A,N/A,89.11
+P920_EXP01_loss_rebalance,virgin_benchmark_164,calibrated_per_class,glass shatter,3,0.22,0,46,13,13,0.0,0.0,0.0,N/A,N/A,89.11
+P920_EXP01_loss_rebalance,virgin_benchmark_164,calibrated_per_class,lamp broken,4,0.25,1,29,30,31,0.0333,0.0323,0.0328,N/A,N/A,89.11
+P920_EXP01_loss_rebalance,virgin_benchmark_164,calibrated_per_class,tire flat,5,0.25,0,47,34,34,0.0,0.0,0.0,N/A,N/A,89.11
+P920_EXP03_hires_704,virgin_benchmark_164,fixed_tau_0.25,OVERALL,ALL,0.25,0,374,122,122,0.0,0.0,0.0,0.0,0.0,192.68
+P920_EXP03_hires_704,virgin_benchmark_164,fixed_tau_0.25,dent,0,0.25,0,67,22,22,0.0,0.0,0.0,N/A,N/A,192.68
+P920_EXP03_hires_704,virgin_benchmark_164,fixed_tau_0.25,scratch,1,0.25,0,79,13,13,0.0,0.0,0.0,N/A,N/A,192.68
+P920_EXP03_hires_704,virgin_benchmark_164,fixed_tau_0.25,crack,2,0.25,0,56,9,9,0.0,0.0,0.0,N/A,N/A,192.68
+P920_EXP03_hires_704,virgin_benchmark_164,fixed_tau_0.25,glass shatter,3,0.25,0,90,13,13,0.0,0.0,0.0,N/A,N/A,192.68
+P920_EXP03_hires_704,virgin_benchmark_164,fixed_tau_0.25,lamp broken,4,0.25,0,46,31,31,0.0,0.0,0.0,N/A,N/A,192.68
+P920_EXP03_hires_704,virgin_benchmark_164,fixed_tau_0.25,tire flat,5,0.25,0,36,34,34,0.0,0.0,0.0,N/A,N/A,192.68
+P920_EXP03_hires_704,virgin_benchmark_164,calibrated_per_class,OVERALL,ALL,mixed,0,397,122,122,0.0,0.0,0.0,0.0,0.0,168.2
+P920_EXP03_hires_704,virgin_benchmark_164,calibrated_per_class,dent,0,0.18,0,97,22,22,0.0,0.0,0.0,N/A,N/A,168.2
+P920_EXP03_hires_704,virgin_benchmark_164,calibrated_per_class,scratch,1,0.28,0,69,13,13,0.0,0.0,0.0,N/A,N/A,168.2
+P920_EXP03_hires_704,virgin_benchmark_164,calibrated_per_class,crack,2,0.25,0,56,9,9,0.0,0.0,0.0,N/A,N/A,168.2
+P920_EXP03_hires_704,virgin_benchmark_164,calibrated_per_class,glass shatter,3,0.22,0,93,13,13,0.0,0.0,0.0,N/A,N/A,168.2
+P920_EXP03_hires_704,virgin_benchmark_164,calibrated_per_class,lamp broken,4,0.25,0,46,31,31,0.0,0.0,0.0,N/A,N/A,168.2
+P920_EXP03_hires_704,virgin_benchmark_164,calibrated_per_class,tire flat,5,0.25,0,36,34,34,0.0,0.0,0.0,N/A,N/A,168.2

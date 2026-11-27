@@ -240,7 +240,13 @@ def execute_claim_processing_pipeline(
         # Stage 5: Optional Report Snapshot Persistence (Phase 11 Hybrid)
         # -------------------------------------------------------------
         try:
-            frozen = freeze_report(claim_id=claim_id, user_id=None, report_type="VERIFICATION_AUDIT")
+            frozen = freeze_report(
+                claim_id=claim_id,
+                user_id=None,
+                report_type="VERIFICATION_AUDIT",
+                upload_root=Config.UPLOAD_FOLDER,
+                reports_root=Config.REPORTS_FOLDER,
+            )
             if frozen:
                 results_summary["report_frozen"] = True
                 results_summary["report_hash"] = frozen.get("file_hash")

@@ -18,6 +18,8 @@ import logging
 import os
 import shutil
 import sqlite3
+import subprocess
+import sys
 import tempfile
 import unittest
 from datetime import datetime, timezone
@@ -104,11 +106,35 @@ class TestPhase11ProductionHardening(unittest.TestCase):
 
     # 1. WSGI Entrypoint Test
     def test_01_wsgi_application_entrypoint(self):
-        """Verify wsgi.py exports valid application callables."""
-        import wsgi
-        self.assertIsInstance(wsgi.app, Flask)
-        self.assertIsInstance(wsgi.application, Flask)
-        self.assertEqual(wsgi.app, wsgi.application)
+        """Verify wsgi.py exports valid application callables in an isolated environment."""
+        wsgi_dir = self.temp_dir / "wsgi_iso"
+        wsgi_dir.mkdir(parents=True, exist_ok=True)
+        wsgi_db = wsgi_dir / "wsgi_isolated.db"
+        env = os.environ.copy()
+        env["DATABASE_PATH"] = str(wsgi_db)
+        env["DATABASE_URL"] = f"sqlite:///{wsgi_db.as_posix()}"
+        env["UPLOAD_FOLDER"] = str(wsgi_dir / "uploads")
+        env["REPORTS_FOLDER"] = str(wsgi_dir / "reports")
+        env["FLASK_ENV"] = "development"
+        env["FLASK_DEBUG"] = "True"
+
+        repo_root = Path(__file__).resolve().parent.parent
+        proc = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "import wsgi; from flask import Flask; "
+                "assert isinstance(wsgi.app, Flask); "
+                "assert isinstance(wsgi.application, Flask); "
+                "assert wsgi.app is wsgi.application",
+            ],
+            cwd=str(repo_root),
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(proc.returncode, 0, f"WSGI isolated check failed: {proc.stderr}")
+        self.assertTrue(wsgi_db.exists())
 
     # 2. Health, Live, and Ready Probes Test
     def test_02_health_endpoints_live_and_ready(self):
@@ -255,7 +281,8 @@ class TestPhase11ProductionHardening(unittest.TestCase):
             claim_id=claim_id,
             user_id=self.test_user_id,
             report_type="VERIFICATION_AUDIT",
-            upload_root=self.test_reports_dir,
+            upload_root=self.test_uploads_dir,
+            reports_root=self.test_reports_dir,
         )
 
         self.assertIsNotNone(report_meta)

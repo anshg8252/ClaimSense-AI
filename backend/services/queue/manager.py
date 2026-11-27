@@ -69,9 +69,18 @@ class RedisTaskBroker:
     def _connect(self):
         try:
             import redis
+        except ImportError:
+            logger.warning(
+                "Python 'redis' package is not installed; RedisTaskBroker disabled and falling back to ThreadedTaskBroker."
+            )
+            self._client = None
+            return
+
+        try:
             self._client = redis.Redis.from_url(self.redis_url, socket_timeout=2.0)
             self._client.ping()
-        except Exception:
+        except Exception as exc:
+            logger.warning(f"Redis unreachable at {self.redis_url} ({exc}); falling back to ThreadedTaskBroker.")
             self._client = None
 
     def is_healthy(self) -> bool:
@@ -134,8 +143,11 @@ class TaskManager:
     def get_active_broker_name(self) -> str:
         """Determines active broker: 'redis' if available and requested, else 'threaded'."""
         broker_type = getattr(Config, "QUEUE_BROKER_TYPE", "auto")
-        if broker_type in ("redis", "auto") and self.redis_broker and self.redis_broker.is_healthy():
-            return "redis"
+        if broker_type in ("redis", "auto"):
+            if self.redis_broker and self.redis_broker.is_healthy():
+                return "redis"
+            if broker_type == "redis":
+                logger.warning("QUEUE_BROKER_TYPE='redis' requested but Redis is unavailable; falling back to 'threaded' broker.")
         return "threaded"
 
     def enqueue_claim_task(
@@ -255,6 +267,7 @@ class TaskManager:
         now = datetime.now(timezone.utc)
         cutoff = now - timedelta(seconds=timeout_seconds)
         recovered = 0
+        tasks_to_requeue = []
 
         with get_db_session() as db:
             stale_tasks = (
@@ -272,8 +285,7 @@ class TaskManager:
                     task.current_stage = "INTAKE"
                     task.error_message = f"Stale task auto-recovered on retry {task.retry_count}/{task.max_retries}"
                     task.updated_at = now
-                    # Re-dispatch
-                    self.threaded_broker.enqueue(task.task_id, task.claim_id)
+                    tasks_to_requeue.append((task.task_id, task.claim_id))
                 else:
                     task.status = "FAILED"
                     task.error_code = "TASK_TIMEOUT"
@@ -283,6 +295,16 @@ class TaskManager:
                 recovered += 1
             if recovered > 0:
                 db.commit()
+
+        # Re-dispatch recovered tasks through the configured active broker after DB commit
+        if tasks_to_requeue:
+            active_broker = self.get_active_broker_name()
+            for task_id, claim_id in tasks_to_requeue:
+                enqueued = False
+                if active_broker == "redis" and self.redis_broker:
+                    enqueued = self.redis_broker.enqueue(task_id=task_id, claim_id=claim_id)
+                if not enqueued:
+                    self.threaded_broker.enqueue(task_id=task_id, claim_id=claim_id)
 
         if recovered > 0:
             logger.info(f"Recovered {recovered} stale processing tasks.")

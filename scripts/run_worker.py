@@ -14,6 +14,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 # Add project root to sys.path
 project_root = Path(__file__).resolve().parent.parent
@@ -40,7 +41,12 @@ def handle_shutdown(signum, frame):
     RUNNING = False
 
 
-def run_worker_loop(broker_type: str = "auto", poll_interval: float = 1.0, single_run: bool = False):
+def run_worker_loop(
+    broker_type: str = "auto",
+    poll_interval: float = 1.0,
+    single_run: bool = False,
+    db_uri: Optional[str] = None,
+):
     """Main worker execution loop."""
     global RUNNING
     logger.info(f"Starting ClaimSense AI Task Worker [Broker: {broker_type}, PID: {os.getpid()}]")
@@ -51,8 +57,8 @@ def run_worker_loop(broker_type: str = "auto", poll_interval: float = 1.0, singl
         signal.signal(signal.SIGTERM, handle_shutdown)
 
     # Initialize database schemas
-    db_uri = getattr(Config, "SQLALCHEMY_DATABASE_URI", "sqlite:///data/claimsense.db")
-    init_database(db_uri)
+    resolved_db_uri = db_uri or getattr(Config, "SQLALCHEMY_DATABASE_URI", "sqlite:///data/claimsense.db")
+    init_database(resolved_db_uri)
 
     redis_broker = None
     if broker_type in ("redis", "auto"):
@@ -118,7 +124,8 @@ def run_worker_loop(broker_type: str = "auto", poll_interval: float = 1.0, singl
                     worker_id=worker_id,
                 )
                 tasks_processed += 1
-                logger.info(f"Task '{task_id}' completed with status: {result.get('status')}")
+                status_label = result.get("status") or ("COMPLETED" if result.get("success") else "FAILED")
+                logger.info(f"Task '{task_id}' completed with status: {status_label}")
 
                 if single_run:
                     logger.info("Single-run flag active; exiting worker loop.")
